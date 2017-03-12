@@ -1,0 +1,37 @@
+{
+    "manifest_version": 2,
+
+    "name": "Plexius",
+    "description": "Some enhancements to the Plex web interface",
+    "version": "1.1",
+
+    "browser_action": {
+        "default_icon": "icon.png"
+    },
+
+    "content_scripts": [{
+        "css": ["styles.css"],
+        "js": [
+            "js/jquery-3.1.1.min.js",
+            "js/arrive.min.js",
+            "js/helpers.js",
+            "js/omdb.js",
+            "js/content.js"
+        ],
+        "matches": ["*://*/web/app*"],
+        "run_at": "document_end"
+    }],
+
+    "permissions": [
+        "storage",
+        "activeTab"
+    ],
+
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+
+    "web_accessible_resources": ["assets/*"]
+}
