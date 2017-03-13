@@ -80,9 +80,13 @@ function checkElement() {
                     }
                 } else if (mediaContainer.getElementsByTagName('Directory').length) {
                     // tv show
-                    resourceTitle = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('title');
-                    resourceYear = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('year');
-                    resourceType = 'series';
+                    if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'show') {
+                        resourceTitle = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('title');
+                        resourceYear = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('year');
+                        resourceType = 'series';
+                    } else if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'season') {
+                        return; // no imdb rating for seasons
+                    }
                 }
 
                 var imdb_id;
@@ -102,6 +106,10 @@ function checkElement() {
                     });
                 } else {
                     if (resourceType === 'series' || resourceType === 'episode') { // many series has a year attached to it, or a country code which messes up the search
+                        var matches = /\(([^)]+)\)/.exec(resourceTitle);
+                        if (matches && matches.length && /^\d+$/.test(matches[matches.length - 1])) {
+                            resourceYear = matches[matches.length - 1];
+                        }
                         resourceTitle = resourceTitle.replace(/ *\([^)]*\) */g, '').trim();
                     }
                     omdb_api.searchByTitle(resourceTitle, resourceYear, resourceType, season, episode, function(resourceData) {

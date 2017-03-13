@@ -11,7 +11,7 @@ omdb_api = {
         var api_url = 'https://www.omdbapi.com/?t=' + encodeURIComponent(query) +'&type=' + resourceType;
 
         if (year ) {
-            api_url += '&year=' + year;
+            api_url += '&y=' + year;
         }
         if (season) {
             api_url += '&season=' + season;
