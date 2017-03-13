@@ -112,11 +112,95 @@ var cache_get = function(key, callback) {
     });
 };
 
-
 var getResourcePath = function(resource) {
     return chrome.extension.getURL('assets/' + resource);
 };
 
 var background_storage_set = function(key, value) {
-    chrome.runtime.sendMessage({"type": "set", "key": key, "value": value});
+    chrome.runtime.sendMessage({ "type": "set", "key": key, "value": value });
+};
+
+
+
+
+var getServerAddresses = function(requests_url, plex_token, callback) {
+    if (global_server_addresses) {
+        callback(global_server_addresses);
+    } else {
+        var xml_lookup_tag_name, request_path;
+        // Lookups are different if we are going to plex.tv as opposed to a local IP address
+        if (plex_token) {
+            xml_lookup_tag_name = 'Device';
+            request_path = '/resources?includeHttps=1';
+        } else {
+            xml_lookup_tag_name = 'Server';
+            request_path = '/servers?includeLite=1';
+        }
+        getXML(requests_url + request_path + '&X-Plex-Token=' + plex_token, function(servers_xml) {
+            var devices = servers_xml.getElementsByTagName('MediaContainer')[0].getElementsByTagName(xml_lookup_tag_name);
+            var task_counter = 0;
+
+            var task_completed = function() {
+                var machine_identifier;
+                task_counter--;
+
+                // Check if all async tasks are finished
+                if (task_counter === 0) {
+                    // Remove offline servers, which return a blank address from plex.tv
+                    for (machine_identifier in server_addresses) {
+                        if (server_addresses[machine_identifier].uri === '') {
+                            delete server_addresses[machine_identifier];
+                        }
+                    }
+
+                    // Pass server addresses to background for stats page
+                    background_storage_set('server_addresses', server_addresses);
+
+                    // Set global_server_addresses so results are cached
+                    global_server_addresses = server_addresses;
+                    callback(server_addresses);
+                }
+            };
+
+            var pingAddress = function(machine_identifier, name, uri, access_token, local) {
+                getXMLWithTimeout(uri + '?X-Plex-Token=' + access_token, 2000, function(server_xml) {
+                    // Use address if we can reach it
+                    if (server_xml && server_xml != 'Unauthorized' && server_xml.getElementsByTagName('MediaContainer')[0].getAttribute('machineIdentifier') === machine_identifier) {
+
+                        if (server_addresses[machine_identifier] && local) {
+                            // Local devices should override any remote
+                            server_addresses[machine_identifier].uri = uri;
+                        } else if (!server_addresses[machine_identifier]) {
+                            // We found our first match!
+                            server_addresses[machine_identifier] = {
+                                'name': name,
+                                'machine_identifier': machine_identifier,
+                                'access_token': access_token,
+                                'uri': uri
+                            };
+                        }
+                    } else {
+                        console.error('plexius', 'Failed to ping address for ' + machine_identifier + ' - ' + uri);
+                    }
+                    task_completed();
+                });
+            };
+
+            var server_addresses = {};
+            for (var i = 0; i < devices.length; i++) {
+                var device = devices[i];
+                var connections = device.hasAttribute('address') ? [device] : device.getElementsByTagName('Connection');
+                var name = device.getAttribute('name');
+                var machine_identifier = device.hasAttribute('machineIdentifier') ? device.getAttribute('machineIdentifier') : device.getAttribute('clientIdentifier');
+                var access_token = device.getAttribute('accessToken');
+                for (var j = 0; j < connections.length; j++) {
+                    var connection = connections[j];
+                    var uri = connection.hasAttribute('uri') ? connection.getAttribute('uri') : window.location.protocol + '//' + connection.getAttribute('address') + ':' + connection.getAttribute('port');
+                    var local = !connection.hasAttribute('uri') || connection.getAttribute('local') == 1;
+                    task_counter += 1;
+                    pingAddress(machine_identifier, name, uri, access_token, local);
+                }
+            }
+        });
+    }
 };

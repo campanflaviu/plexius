@@ -1,14 +1,24 @@
 omdb_api = {
     searchByImdbId: function(query, callback) {
-        var api_url = "https://www.omdbapi.com/?i=" + query;
+        var api_url = 'https://www.omdbapi.com/?i=' + query;
 
         getJSONWithCache(api_url, function(omdb_json) {
             callback(omdb_json);
         });
     },
 
-    searchByMovieTitle: function(query, movie_year, callback) {
-        var api_url = "https://www.omdbapi.com/?t=" + encodeURIComponent(query) + "&y=" + movie_year;
+    searchByTitle: function(query, year, resourceType, season, episode, callback) {
+        var api_url = 'https://www.omdbapi.com/?t=' + encodeURIComponent(query) +'&type=' + resourceType;
+
+        if (year ) {
+            api_url += '&year=' + year;
+        }
+        if (season) {
+            api_url += '&season=' + season;
+        }
+        if (episode) {
+            api_url += '&episode=' + episode;
+        }
 
         getJSONWithCache(api_url, function(omdb_json) {
             callback(omdb_json);

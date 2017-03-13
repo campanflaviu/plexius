@@ -1,3 +1,22 @@
+.plexius-title-rating {
+    margin-left: 30px;
+}
+
+.plexius-rating-container {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.plexius-rating-rt {
+    align-items: center;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    justify-content: flex-start;
+}
+
 .plexius-rating {
     display: -webkit-box;
     display: -webkit-flex;
