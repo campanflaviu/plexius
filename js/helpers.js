@@ -51,6 +51,27 @@ var getXML = function(url, callback) {
     xhr.send();
 };
 
+var getXMLWithTimeout = function(url, timeout, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onload = function(e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                callback(xhr.responseXML);
+            } else {
+                callback(xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function() {
+        callback(xhr.statusText);
+    };
+    xhr.timeout = timeout;
+    xhr.ontimeout = function() {
+        callback(xhr.statusText);
+    };
+    xhr.send();
+};
 
 var local_storage_set = function(key, value) {
     var hash = {};
@@ -94,4 +115,8 @@ var cache_get = function(key, callback) {
 
 var getResourcePath = function(resource) {
     return chrome.extension.getURL('assets/' + resource);
+};
+
+var background_storage_set = function(key, value) {
+    chrome.runtime.sendMessage({"type": "set", "key": key, "value": value});
 };
