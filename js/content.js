@@ -68,11 +68,13 @@ function checkElement() {
 
                 if (mediaContainer.getElementsByTagName('Video').length) {
                     if (mediaContainer.getElementsByTagName('Video')[0].getAttribute('type') === 'episode') {
-                        // episode
-                        resourceType = 'episode';
-                        season = mediaContainer.getElementsByTagName('Video')[0].getAttribute('parentIndex');
-                        episode = mediaContainer.getElementsByTagName('Video')[0].getAttribute('index');
-                        resourceTitle = mediaContainer.getElementsByTagName('Video')[0].getAttribute('grandparentTitle');
+                        // episode - disable this for the now, since omdb rating update time for some episodes is too high
+
+                        // resourceType = 'episode';
+                        // season = mediaContainer.getElementsByTagName('Video')[0].getAttribute('parentIndex');
+                        // episode = mediaContainer.getElementsByTagName('Video')[0].getAttribute('index');
+                        // resourceTitle = mediaContainer.getElementsByTagName('Video')[0].getAttribute('grandparentTitle');
+                        return;
                     } else {
                         // movie
                         agent = mediaContainer.getElementsByTagName('Video')[0].getAttribute('guid');
