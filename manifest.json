@@ -14,8 +14,10 @@
         "js": [
             "js/jquery-3.1.1.min.js",
             "js/arrive.min.js",
+            "js/constants.js",
             "js/helpers.js",
             "js/omdb.js",
+            "js/apis/trakt.js",
             "js/content.js"
         ],
         "matches": ["*://*/web/*"],
