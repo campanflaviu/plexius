@@ -9,14 +9,20 @@
         "default_icon": "icon.png"
     },
 
+    "options_ui": {
+        "page": "options.html",
+        "chrome_style": true
+    },
+
     "content_scripts": [{
         "css": ["styles.css"],
         "js": [
             "js/jquery-3.1.1.min.js",
             "js/arrive.min.js",
+            // here should be the trakt api
             "js/constants.js",
             "js/helpers.js",
-            "js/omdb.js",
+            "js/apis/omdb.js",
             "js/apis/trakt.js",
             "js/content.js"
         ],
@@ -35,5 +41,5 @@
         "128": "icon128.png"
     },
 
-    "web_accessible_resources": ["assets/*"]
+    "web_accessible_resources": ["assets/*", "options.html"]
 }

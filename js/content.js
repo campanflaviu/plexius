@@ -1,3 +1,4 @@
+var settings;
 var global_server_addresses;
 var server_addresses = {};
 var criticRatingRtEl = "div[class^='CriticRating-rt'], div[class*=' CriticRating-rt']";
@@ -6,7 +7,6 @@ var titleCriticRatingContainerEl = "span[class^='PrePlayRatingRightTitle-criticR
 var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*=' CriticRating-container-']";
 var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-']";
 var task_counter = 0;
-var xml_lookup_tag_name = 'Device';
 
 
 var checkPage = function() {
@@ -58,68 +58,18 @@ function checkElement() {
             console.log('plexius', metadata_xml_url);
             getXML(metadata_xml_url, function(metadata_xml) {
 
-                var mediaContainer = metadata_xml.getElementsByTagName('MediaContainer')[0];
-                var agent;
-                var resourceType;
-                var resourceTitle = '';
-                var resourceYear = '';
-                var season;
-                var episode;
+                movieDetails = processPageDetails(metadata_xml);
 
-                if (mediaContainer.getElementsByTagName('Video').length) {
-                    if (mediaContainer.getElementsByTagName('Video')[0].getAttribute('type') === 'episode') {
-                        // episode - disable this for the now, since omdb rating update time for some episodes is too high
-
-                        // resourceType = 'episode';
-                        // season = mediaContainer.getElementsByTagName('Video')[0].getAttribute('parentIndex');
-                        // episode = mediaContainer.getElementsByTagName('Video')[0].getAttribute('index');
-                        // resourceTitle = mediaContainer.getElementsByTagName('Video')[0].getAttribute('grandparentTitle');
-                        return;
-                    } else {
-                        // movie
-                        agent = mediaContainer.getElementsByTagName('Video')[0].getAttribute('guid');
-                        resourceType = 'movie';
-                    }
-                } else if (mediaContainer.getElementsByTagName('Directory').length) {
-                    // tv show
-                    if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'show') {
-                        resourceTitle = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('title');
-                        resourceYear = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('year');
-                        resourceType = 'series';
-                    } else if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'season') {
-                        return; // no imdb rating for seasons
-                    }
+                // add IMDB rating
+                if (settings.showIMDB) {
+                    omdbApi.processResource(movieDetails);
                 }
 
-                var imdb_id;
-
-                // freebase metadata agent
-                if (/com\.plexapp\.agents\.imdb/.test(agent)) {
-                    imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-                }
-                // check if using the XBMCnfoMoviesImporter agent
-                else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
-                    imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
+                // add trakt rating
+                if (settings.showTrakt) {
+                    traktApi.processResource(movieDetails);
                 }
 
-                if (imdb_id) {
-                    omdb_api.searchByImdbId(imdb_id, function(resourceData) {
-                        processImdbRating(resourceData);
-                    });
-                } else {
-                    if (resourceType === 'series' || resourceType === 'episode') { // many series has a year attached to it, or a country code which messes up the search
-                        var matches = /\(([^)]+)\)/.exec(resourceTitle);
-                        if (matches && matches.length && /^\d+$/.test(matches[matches.length - 1])) {
-                            resourceYear = matches[matches.length - 1];
-                        }
-                        resourceTitle = resourceTitle.replace(/ *\([^)]*\) */g, '').trim();
-                    }
-                    omdb_api.searchByTitle(resourceTitle, resourceYear, resourceType, season, episode, function(resourceData) {
-                        if (resourceData.Response !== 'False') {
-                            processImdbRating(resourceData);
-                        }
-                    });
-                }
             });
         });
         jQuery(document).unbindArrive();
@@ -146,4 +96,7 @@ function processImdbRating(movie_data) {
 
 
 // first run
-checkPage();
+setDefaultOptions(function(storedSettings) {
+    settings = storedSettings;
+    checkPage();
+});

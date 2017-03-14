@@ -29,11 +29,11 @@
     align-items: center;
 }
 
-.plexius-imdb-rating-container {
+.plexius-imdb-rating-container, .plexius-trakt-rating-container {
     margin-left: 0.6em;
 }
 
-.plexius-imdb-rating {
+.plexius-imdb-rating, .plexius-trakt-rating {
     height: 1em;
-    margin-right: 0.4em;
+    margin: 0 0.4em;
 }

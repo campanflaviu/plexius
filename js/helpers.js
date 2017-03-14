@@ -1,3 +1,9 @@
+var setDefaultOptions = function(callback) {
+    chrome.storage.sync.get(function(results) {
+        callback(results);
+    });
+};
+
 var getJSONWithCache = function(url, callback, custom_headers) {
     cache_get('cache-' + url, function(result) {
         if (result) {
@@ -121,6 +127,59 @@ var background_storage_set = function(key, value) {
 };
 
 
+var processPageDetails = function(metadata_xml) {
+    var mediaContainer = metadata_xml.getElementsByTagName('MediaContainer')[0];
+    var agent;
+    var details = {};
+
+    if (mediaContainer.getElementsByTagName('Video').length) {
+        if (mediaContainer.getElementsByTagName('Video')[0].getAttribute('type') === 'episode') {
+            return;
+        } else {
+            // movie
+            details.resourceTitle = mediaContainer.getElementsByTagName('Video')[0].getAttribute('title');
+            details.resourceYear = mediaContainer.getElementsByTagName('Video')[0].getAttribute('year');
+            agent = mediaContainer.getElementsByTagName('Video')[0].getAttribute('guid');
+            details.resourceType = 'movie';
+        }
+    } else if (mediaContainer.getElementsByTagName('Directory').length) {
+        // tv show
+        if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'show') {
+            details.resourceTitle = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('title');
+            details.resourceYear = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('year');
+            details.resourceType = 'series';
+        } else if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'season') {
+            return; // no imdb rating for seasons
+        }
+    }
+
+    // freebase metadata agent
+    if (/com\.plexapp\.agents\.imdb/.test(agent)) {
+        details.imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
+    }
+    // check if using the XBMCnfoMoviesImporter agent
+    else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
+        details.imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
+    }
+    return details;
+};
+
+var injectRating = function(ratingProvider) {
+    // check if there is a container for reviews. If not, inject it
+    if (!jQuery(titleCriticRatingContainerEl).length) {
+        jQuery(titleRatingContainerEl).append('<span class="plexius-title-rating"><div class="plexius-rating-container"><div class="plexius-rating-rt"><div class="plexius-rating"></div></div><div></span>');
+        criticRatingRtEl = '.plexius-rating';
+    } else
+    // check if there is a container for multiple reviews. If not, inject it
+    if (!jQuery(criticRatingContainerEl).children(criticRatingRtEl).length) {
+        jQuery(criticRatingContainerEl).children(0).wrap('<div class="plexius-rating"></div>');
+        criticRatingRtEl = '.plexius-rating';
+    }
+
+    var el = jQuery(criticRatingRtEl);
+    var newElement = '<a href="' + ratingProvider.linkUri + '" target="_blank"><div class="plexius-' + ratingProvider.name + '-rating-container"><img class="plexius-' + ratingProvider.name + '-rating" src="' + ratingProvider.imgSrc + '">' + ratingProvider.rating + '</a></div>';
+    jQuery(criticRatingRtEl).append(newElement);
+};
 
 
 var getServerAddresses = function(requests_url, plex_token, callback) {
