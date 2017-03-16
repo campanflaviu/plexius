@@ -60,6 +60,10 @@ function checkElement() {
 
                 movieDetails = processPageDetails(metadata_xml);
 
+                if (!movieDetails) {
+                    return;
+                }
+
                 // add IMDB rating
                 if (settings.showIMDB) {
                     omdbApi.processResource(movieDetails);
