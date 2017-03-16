@@ -58,6 +58,10 @@ var traktApi = {
         }, traktApi.customHeaders);
     },
 
+    injectYoutubeTrailer: function(trailerApi) {
+        jQuery(headerToolbarContainerEl).prepend('<a href="' + trailerApi + '" target="_blank" aria-label="Trailer" title="Trailer"><button class="plexius-trailer-button Link-link-2wZEE Link-default-1sSkX tether-target tether-element-attached-top tether-element-attached-center tether-target-attached-bottom tether-target-attached-center" style="text-align: center" type="button"><i class="plex-icon-trailer" aria-hidden="true"></i></button></a>');
+    },
+
     processResource: function(movieDetails) {
         var query, url;
 
@@ -76,12 +80,18 @@ var traktApi = {
                 } else {
                     trakt_json = trakt_json[0].movie;
                     var rating = Math.round(trakt_json.rating * 10);
-                    injectRating({
-                        name: 'trakt',
-                        linkUri: traktApi.linkUri + 'movies/' + trakt_json.ids.slug,
-                        imgSrc: getResourcePath('trakt_logo.png'),
-                        rating: rating + '%'
-                    });
+
+                    if (settings.showTrakt) {
+                        injectRating({
+                            name: 'trakt',
+                            linkUri: traktApi.linkUri + 'movies/' + trakt_json.ids.slug,
+                            imgSrc: getResourcePath('trakt_logo.png'),
+                            rating: rating + '%'
+                        });
+                    }
+                    if (settings.showTrailer && trakt_json.trailer) {
+                        traktApi.injectYoutubeTrailer(trakt_json.trailer);
+                    }
                 }
             });
         } else if (movieDetails.resourceType === 'series') {

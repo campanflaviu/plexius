@@ -6,6 +6,7 @@ var titleRatingContainerEl = "div[class^='PrePlayRatingRightTitle-ratingRightTit
 var titleCriticRatingContainerEl = "span[class^='PrePlayRatingRightTitle-criticRating'], span[class*=' PrePlayRatingRightTitle-criticRating']";
 var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*=' CriticRating-container-']";
 var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-']";
+var headerToolbarContainerEl = "div[class^='pageHeaderToolbar-toolbar-'], div[class*=' pageHeaderToolbar-toolbar-']";
 var task_counter = 0;
 
 
@@ -70,34 +71,13 @@ function checkElement() {
                 }
 
                 // add trakt rating
-                if (settings.showTrakt) {
-                    traktApi.processResource(movieDetails);
-                }
+                traktApi.processResource(movieDetails);
 
             });
         });
         jQuery(document).unbindArrive();
     });
 }
-
-function processImdbRating(movie_data) {
-
-    // check if there is a container for reviews. If not, inject it
-    if (!jQuery(titleCriticRatingContainerEl).length) {
-        jQuery(titleRatingContainerEl).append('<span class="plexius-title-rating"><div class="plexius-rating-container"><div class="plexius-rating-rt"><div class="plexius-rating"></div></div><div></span>');
-        criticRatingRtEl = '.plexius-rating';
-    } else
-    // check if there is a container for multiple reviews. If not, inject it
-    if (!jQuery(criticRatingContainerEl).children(criticRatingRtEl).length) {
-        jQuery(criticRatingContainerEl).children(0).wrap('<div class="plexius-rating"></div>');
-        criticRatingRtEl = '.plexius-rating';
-    }
-
-    var el = jQuery(criticRatingRtEl);
-    var newElement = '<a href="http://www.imdb.com/title/' + movie_data.imdbID + '" target="_blank"><div class="plexius-imdb-rating-container"><img class="plexius-imdb-rating" src="' + getResourcePath('imdb_logo.png') + '">' + movie_data.imdbRating + '</a></div>';
-    jQuery(criticRatingRtEl).append(newElement);
-}
-
 
 // first run
 setDefaultOptions(function(storedSettings) {

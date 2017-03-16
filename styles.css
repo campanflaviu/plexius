@@ -1,3 +1,5 @@
+/* ratings */
+
 .plexius-title-rating {
     margin-left: 30px;
 }
@@ -36,4 +38,20 @@
 .plexius-imdb-rating, .plexius-trakt-rating {
     height: 1em;
     margin: 0 0.4em;
+}
+
+
+/*  trailer */
+
+.plexius-trailer-button {
+    display: inline-block;
+    -webkit-flex-shrink: 0;
+    flex-shrink: 0;
+    width: 50px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.plex-icon-trailer:before {
+    content: "\EA54";
 }
