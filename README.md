@@ -5,6 +5,9 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.4.0
+ - added movie trailers using Trakt api
+
 1.3.0
  - fixed localhost / 127.0.0.1 (Salvationdk)
  - added Trakt ratings and links to movies and tv shows
