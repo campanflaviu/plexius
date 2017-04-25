@@ -5,6 +5,9 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.5.0
+ - added missing and unaired episodes feature
+
 1.4.0
  - added movie trailers using Trakt api
 
