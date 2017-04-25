@@ -19,42 +19,61 @@ var traktApi = {
         return title;
     },
 
+    getShowDetails: function(id, callback) {
+        apiUrl = traktApi.apiUri  + 'shows/' + id + '?extended=full';
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
+        }, traktApi.customHeaders);
+    },
+
     getMovieRating: function(query, year, imdbId, callback) {
-        var api_url;
+        var apiUrl;
         if (imdbId) {
-            api_url = traktApi.apiUri + 'search/imdb/' + imdbId + '?extended=full';
+            apiUrl = traktApi.apiUri + 'search/imdb/' + imdbId + '?extended=full';
         } else {
             query = query.split(' ').join('-').toLowerCase();
-            api_url = traktApi.apiUri + 'search/movie?query=' + encodeURIComponent(query) + '&years=' + year + '&extended=full';
+            apiUrl = traktApi.apiUri + 'search/movie?query=' + encodeURIComponent(query) + '&years=' + year + '&extended=full';
         }
 
-        getJSONWithCache(api_url, function(trakt_json) {
-            callback(trakt_json);
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
         }, traktApi.customHeaders);
     },
 
-    getShowRating: function(query, year, callback) {
+    getShowByName: function(query, year, extended, callback) {
         query = query.split(' ').join('-').toLowerCase();
-        var api_url = traktApi.apiUri + 'search/show?query=' + encodeURIComponent(traktApi.parseTitle(query)) + '&years=' + year + '&extended=full';
+        var apiUrl = traktApi.apiUri + 'search/show?query=' + encodeURIComponent(traktApi.parseTitle(query)) + '&years=' + year;
 
-        getJSONWithCache(api_url, function(trakt_json) {
-            callback(trakt_json);
+        if (extended) {
+            apiUrl += '&extended=full';
+        }
+
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
         }, traktApi.customHeaders);
     },
 
-    getSeasonRating: function(query, season_num, callback) {
-        var api_url = traktApi.apiUri + 'shows/' + encodeURIComponent(query) + '/seasons/' + season_num + '/ratings';
+    getSeasonRating: function(query, seasonIndex, callback) {
+        var apiUrl = traktApi.apiUri + 'shows/' + encodeURIComponent(query) + '/seasons/' + seasonIndex + '/ratings';
 
-        getJSONWithCache(api_url, function(trakt_json) {
-            callback(trakt_json);
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
         }, traktApi.customHeaders);
     },
 
-    getEpisodeRating: function(query, season_num, episode_num, callback) {
-        var api_url = traktApi.apiUri + 'shows/' + encodeURIComponent(query) + '/seasons/' + season_num + '/episodes/' + episode_num + '/ratings';
+    getAllEpisodesBySlug: function(showSlug, showIndex, callback){
+        var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons/' + showIndex + '?extended=full';
 
-        getJSONWithCache(api_url, function(trakt_json) {
-            callback(trakt_json);
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
+        }, traktApi.customHeaders);
+    },
+
+    getEpisodeRating: function(query, seasonIndex, episode_num, callback) {
+        var apiUrl = traktApi.apiUri + 'shows/' + encodeURIComponent(query) + '/seasons/' + seasonIndex + '/episodes/' + episode_num + '/ratings';
+
+        getJSONWithCache(apiUrl, function(traktJson) {
+            callback(traktJson);
         }, traktApi.customHeaders);
     },
 
@@ -63,6 +82,11 @@ var traktApi = {
     },
 
     processResource: function(movieDetails) {
+        // no trackt data for seasons (for now)
+        if (movieDetails.resourceType === 'season') {
+            return;
+        }
+
         var query, url;
 
         if (movieDetails.imdb_id) {
@@ -74,38 +98,38 @@ var traktApi = {
         }
 
         if (movieDetails.resourceType === 'movie') {
-            traktApi.getMovieRating(query, movieDetails.resourceYear, movieDetails.imdb_id, function(trakt_json) {
-                if (trakt_json.error) {
+            traktApi.getMovieRating(query, movieDetails.resourceYear, movieDetails.imdb_id, function(traktJson) {
+                if (traktJson.error) {
                     return;
                 } else {
-                    trakt_json = trakt_json[0].movie;
-                    var rating = Math.round(trakt_json.rating * 10);
+                    traktJson = traktJson[0].movie;
+                    var rating = Math.round(traktJson.rating * 10);
 
                     if (settings.showTrakt) {
                         injectRating({
                             name: 'trakt',
-                            linkUri: traktApi.linkUri + 'movies/' + trakt_json.ids.slug,
+                            linkUri: traktApi.linkUri + 'movies/' + traktJson.ids.slug,
                             imgSrc: getResourcePath('trakt_logo.png'),
                             rating: rating + '%'
                         });
                     }
-                    if (settings.showTrailer && trakt_json.trailer) {
-                        traktApi.injectYoutubeTrailer(trakt_json.trailer);
+                    if (settings.showTrailer && traktJson.trailer) {
+                        traktApi.injectYoutubeTrailer(traktJson.trailer);
                     }
                 }
             });
         } else if (movieDetails.resourceType === 'series') {
-            traktApi.getShowRating(query, movieDetails.resourceYear, function(trakt_json) {
-                if (trakt_json.error) {
+            traktApi.getShowByName(query, movieDetails.resourceYear, true, function(traktJson) {
+                if (traktJson.error) {
                     return;
                 }
-                if (trakt_json[0]) {
-                    trakt_json = trakt_json[0].show;
+                if (traktJson[0]) {
+                    traktJson = traktJson[0].show;
                 }
-                var rating = Math.round(trakt_json.rating * 10);
+                var rating = Math.round(traktJson.rating * 10);
                 injectRating({
                     name: 'trakt',
-                    linkUri: traktApi.linkUri + 'shows/' +  trakt_json.ids.slug,
+                    linkUri: traktApi.linkUri + 'shows/' +  traktJson.ids.slug,
                     imgSrc: getResourcePath('trakt_logo.png'),
                     rating: rating + '%'
                 });

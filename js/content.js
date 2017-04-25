@@ -8,6 +8,7 @@ var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*
 var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-']";
 var headerToolbarContainerEl = "div[class^='pageHeaderToolbar-toolbar-'], div[class*=' pageHeaderToolbar-toolbar-']";
 var task_counter = 0;
+var server;
 
 
 var checkPage = function() {
@@ -54,6 +55,8 @@ function checkElement() {
                 servers = users.users[0].servers[0].connections;
             }
 
+            server = global_server_addresses[machine_identifier];
+
             var metadata_xml_url = global_server_addresses[machine_identifier].uri + '/library/metadata/' + parent_item_id + '?X-Plex-Token=' + localStorage.myPlexAccessToken;
 
             console.log('plexius', metadata_xml_url);
@@ -72,6 +75,9 @@ function checkElement() {
 
                 // add trakt rating
                 traktApi.processResource(movieDetails);
+
+                // add missingEpisodes
+                missingEpisodes.init(global_server_addresses[machine_identifier], movieDetails);
 
             });
         });

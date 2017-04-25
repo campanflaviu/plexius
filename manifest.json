@@ -21,8 +21,10 @@
             "js/arrive.min.js",
             "js/constants.js",
             "js/helpers.js",
+            "js/apis/plex.js",
             "js/apis/omdb.js",
             "js/apis/trakt.js",
+            "js/plugins/missingEpisodes.js",
             "js/content.js"
         ],
         "matches": ["*://*/web/*"],

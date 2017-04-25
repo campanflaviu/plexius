@@ -49,6 +49,10 @@ var omdbApi = {
     },
 
     processResource: function(movieDetails) {
+        // no imdb rating for seasons
+        if (movieDetails.resourceType === 'season') {
+            return;
+        }
         if (movieDetails.imdb_id) {
             omdbApi.searchByImdbId(movieDetails.imdb_id, function(resourceData) {
                 omdbApi.processImdbRating(resourceData);

@@ -143,13 +143,19 @@ var processPageDetails = function(metadata_xml) {
             details.resourceType = 'movie';
         }
     } else if (mediaContainer.getElementsByTagName('Directory').length) {
+        var directoryMetadata = mediaContainer.getElementsByTagName('Directory')[0];
         // tv show
-        if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'show') {
-            details.resourceTitle = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('title');
-            details.resourceYear = mediaContainer.getElementsByTagName('Directory')[0].getAttribute('year');
+        if (directoryMetadata.getAttribute('type') === 'show') {
+            details.resourceTitle = directoryMetadata.getAttribute('title');
+            details.resourceYear = directoryMetadata.getAttribute('year');
             details.resourceType = 'series';
-        } else if (mediaContainer.getElementsByTagName('Directory')[0].getAttribute('type') === 'season') {
-            return; // no imdb rating for seasons
+        } else if (directoryMetadata.getAttribute('type') === 'season') {
+            details.title = directoryMetadata.getAttribute('parentTitle');
+            details.seasonIndex = directoryMetadata.getAttribute('index');
+            details.seasonMetadataId = directoryMetadata.getAttribute('ratingKey');
+            details.seriesMetadataId = directoryMetadata.getAttribute('parentRatingKey');
+            details.agent = directoryMetadata.getAttribute('guid');
+            details.resourceType = 'season';
         }
     }
 
@@ -262,4 +268,13 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
             }
         });
     }
+};
+
+var cleanText = function(text) {
+    text = text.replace(/[ÀÁÂÃÄÅ]/g,'A');
+    text = text.replace(/[àáâãäå]/g,'a');
+    text = text.replace(/[ÈÉÊË]/g,'E');
+    text = text.replace(/[é]/g,'e');
+
+    return encodeURIComponent(text);
 };
