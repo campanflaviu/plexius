@@ -148,6 +148,8 @@ var processPageDetails = function(metadata_xml) {
         if (directoryMetadata.getAttribute('type') === 'show') {
             details.resourceTitle = directoryMetadata.getAttribute('title');
             details.resourceYear = directoryMetadata.getAttribute('year');
+            details.seriesMetadataId = directoryMetadata.getAttribute('ratingKey');
+            details.guid = directoryMetadata.getAttribute('guid');
             details.resourceType = 'series';
         } else if (directoryMetadata.getAttribute('type') === 'season') {
             details.title = directoryMetadata.getAttribute('parentTitle');

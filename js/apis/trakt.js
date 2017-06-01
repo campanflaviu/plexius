@@ -41,8 +41,9 @@ var traktApi = {
     },
 
     getShowByName: function(query, year, extended, callback) {
+        var showTitle = query.replace(/ *\([^)]*\) */g, '').trim(); // trim year from title since it's passed separately
         query = query.split(' ').join('-').toLowerCase();
-        var apiUrl = traktApi.apiUri + 'search/show?query=' + encodeURIComponent(traktApi.parseTitle(query)) + '&years=' + year;
+        var apiUrl = traktApi.apiUri + 'search/show?query=' + encodeURIComponent(traktApi.parseTitle(showTitle)) + '&years=' + year;
 
         if (extended) {
             apiUrl += '&extended=full';
@@ -61,10 +62,22 @@ var traktApi = {
         }, traktApi.customHeaders);
     },
 
-    getAllEpisodesBySlug: function(showSlug, showIndex, callback){
-        var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons/' + showIndex + '?extended=full';
+    getAllSeasonBySlug: function(showSlug, callback){
+        var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons?extended=full';
+        console.log('plexius apiUrl', apiUrl);
 
         getJSONWithCache(apiUrl, function(traktJson) {
+        console.log('plexius traktJson', traktJson);
+            callback(traktJson);
+        }, traktApi.customHeaders);
+    },
+
+    getAllEpisodesBySlug: function(showSlug, showIndex, callback){
+        var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons/' + showIndex + '?extended=full';
+        console.log('plexius apiUrl', apiUrl);
+
+        getJSONWithCache(apiUrl, function(traktJson) {
+        console.log('plexius traktJson', traktJson);
             callback(traktJson);
         }, traktApi.customHeaders);
     },

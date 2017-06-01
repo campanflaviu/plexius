@@ -3,7 +3,7 @@ var omdbApi = {
     linkUri: 'http://www.imdb.com/title/',
 
     searchByImdbId: function(query, callback) {
-        var api_url = 'https://www.omdbapi.com/?i=' + query;
+        var api_url = 'https://www.omdbapi.com/?apikey=' + constants.omdbApiKey + '&i=' + query;
 
         getJSONWithCache(api_url, function(omdb_json) {
             callback(omdb_json);
@@ -11,7 +11,7 @@ var omdbApi = {
     },
 
     searchByTitle: function(query, year, resourceType, season, episode, callback) {
-        var api_url = 'https://www.omdbapi.com/?t=' + encodeURIComponent(query) + '&type=' + resourceType;
+        var api_url = 'https://www.omdbapi.com/?apikey=' + constants.omdbApiKey + '&t=' + encodeURIComponent(query) + '&type=' + resourceType;
 
         if (year) {
             api_url += '&y=' + year;

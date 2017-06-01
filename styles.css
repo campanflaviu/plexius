@@ -44,17 +44,19 @@
 /*  trailer */
 
 .plexius-trailer-button {
-    display: inline-block;
-    -webkit-flex-shrink: 0;
-    flex-shrink: 0;
-    width: 50px;
-    text-align: center;
     font-size: 20px;
     background-color: transparent;
+    width: 50px;
+    color: rgba(255, 255, 255, 0.7);
+    border: 0;
+}
+
+.plexius-trailer-button:focus {
+    outline:none;
 }
 
 .plex-icon-trailer:before {
-    content: "\EA54";
+    content: "\EA55";
 }
 
 /* missing episodes */

@@ -18,12 +18,14 @@ var checkPage = function() {
 };
 
 window.onhashchange = function() {
+    closeModal();
     checkPage();
 };
 
 
 function checkElement() {
-    jQuery(document).arrive(titleRatingContainerEl, function() {
+    // go forward as soon as the title for movie/tv show/episode is rendered
+    jQuery(document).arrive(titleRatingContainerEl, {existing: true}, function() {
 
         var requests_url;
         if (localStorage.myPlexAccessToken) {
@@ -35,7 +37,7 @@ function checkElement() {
 
         getServerAddresses(requests_url, localStorage.myPlexAccessToken, function(server_addresses) {
 
-            // there is a built in imdb rating for a few movies
+            // there is a built in imdb rating for some movies
             if (jQuery(imdbRatingContainerEl).length) {
                 return;
             }

@@ -5,6 +5,15 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.5.2
+ - added missing seasons for tv shows
+ - added options for showing tv episodes and seasons missing and unaired
+ - fixed styling and icon for trailer button
+ - close missing episodes/seasons modals when navigating
+ - fix data display when navigating
+ - added omdb api key option (not yet functional)
+ - fixed missing episodes/seasons for shows that have year in title
+
 1.5.1
  - removed imdb rating because omdb api switched to private apis due to very high traffic (will add it back as soon as I get the key)
  - some styling fixes for unaired episodes
