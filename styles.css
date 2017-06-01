@@ -61,10 +61,10 @@
 
 .plex-missing-episodes, .plex-unaired-episodes {
     text-transform: uppercase;
-    margin-left: 5px;
+    margin-left: 2px;
 }
 
-.plex-missing-episodes:hover, .plex-unaired-episodes:hover {
+.plex-missing-episodes span:hover, .plex-unaired-episodes span:hover {
     cursor: pointer;
     text-decoration: underline;
 }

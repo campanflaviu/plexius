@@ -58,18 +58,18 @@ var missingEpisodes = {
 
     injectData: function(showName, episodes) {
         if (episodes.aired.length) {
-            jQuery('<span> - <span class="plex-missing-episodes">' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='HubCellTitle-hubCellTitle-'], div[class*='HubCellTitle-hubCellTitle-']");
+            jQuery('<span class="plex-missing-episodes"> - <span>' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='HubCellTitle-hubCellTitle-'], div[class*='HubCellTitle-hubCellTitle-']");
         }
         if (episodes.unaired.length) {
-            jQuery('<span> - <span class="plex-unaired-episodes">' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='HubCellTitle-hubCellTitle-'], div[class*='HubCellTitle-hubCellTitle-']");
+            jQuery('<span class="plex-unaired-episodes"> - <span>' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='HubCellTitle-hubCellTitle-'], div[class*='HubCellTitle-hubCellTitle-']");
         }
 
-        jQuery('.plex-missing-episodes').click(function() {
+        jQuery('.plex-missing-episodes span').click(function() {
             missingEpisodes.populateModal(showName, episodes.aired, 'Missing');
             openModal();
         });
 
-        jQuery('.plex-unaired-episodes').click(function() {
+        jQuery('.plex-unaired-episodes span').click(function() {
             missingEpisodes.populateModal(showName, episodes.unaired, 'Unaired');
             openModal();
         });

@@ -5,6 +5,10 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.5.1
+ - removed imdb rating because omdb api switched to private apis due to very high traffic (will add it back as soon as I get the key)
+ - some styling fixes for unaired episodes
+
 1.5.0
  - added missing and unaired episodes feature
 
