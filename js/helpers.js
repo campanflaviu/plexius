@@ -174,8 +174,8 @@ var processPageDetails = function(metadata_xml) {
 
 var injectRating = function(ratingProvider) {
     // check if there is a container for reviews. If not, inject it
-    if (!jQuery(titleCriticRatingContainerEl).length) {
-        jQuery(titleRatingContainerEl).append('<span class="plexius-title-rating"><div class="plexius-rating-container"><div class="plexius-rating-rt"><div class="plexius-rating"></div></div><div></span>');
+    if (!jQuery(titleCriticRatingContainerEl).length && !jQuery('.plexius-title-rating').length) {
+        jQuery(titleRatingContainerEl).append('<span class="plexius-title-rating"><div class="plexius-rating-container"><div class="plexius-rating-rt"><div class="plexius-rating"></div></div></div></span>');
         criticRatingRtEl = '.plexius-rating';
     } else
     // check if there is a container for multiple reviews. If not, inject it
@@ -185,7 +185,7 @@ var injectRating = function(ratingProvider) {
     }
 
     var el = jQuery(criticRatingRtEl);
-    var newElement = '<a href="' + ratingProvider.linkUri + '" target="_blank"><div class="plexius-' + ratingProvider.name + '-rating-container"><img class="plexius-' + ratingProvider.name + '-rating" src="' + ratingProvider.imgSrc + '">' + ratingProvider.rating + '</a></div>';
+    var newElement = '<a href="' + ratingProvider.linkUri + '" target="_blank"><div class="plexius-' + ratingProvider.name + '-rating-container"><img class="plexius-' + ratingProvider.name + '-rating" src="' + ratingProvider.imgSrc + '">' + ratingProvider.rating + '</div></a>';
     jQuery(criticRatingRtEl).append(newElement);
 };
 

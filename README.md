@@ -5,6 +5,10 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.5.3
+ - put back the imdb rating
+ - fixed rating styling
+
 1.5.2
  - added missing seasons for tv shows
  - added options for showing tv episodes and seasons missing and unaired

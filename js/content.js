@@ -72,7 +72,7 @@ function checkElement() {
 
                 // add IMDB rating
                 if (settings.showIMDB) {
-                    // omdbApi.processResource(movieDetails);
+                    omdbApi.processResource(movieDetails);
                 }
 
                 // add trakt rating
