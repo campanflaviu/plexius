@@ -3,7 +3,7 @@
 
     "name": "Plexius",
     "description": "Some enhancements to the Plex web interface",
-    "version": "1.5.3",
+    "version": "1.5.4",
 
     "browser_action": {
         "default_icon": "assets/icon.png"
