@@ -5,6 +5,9 @@ Available at https://chrome.google.com/webstore/detail/plexius/cghenlijcboahfbcg
 
 changelog:
 
+1.5.4
+ - Fix ratings/missing season/episodes on web version 3.11.0
+
 1.5.3
  - put back the imdb rating
  - fixed rating styling

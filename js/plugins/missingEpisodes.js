@@ -109,12 +109,12 @@ var missingEpisodes = {
     injectData: function(showName, episodes, resourceType) {
         if (episodes.aired.length) {
             if (!jQuery('.plex-missing-episodes').length) {
-                jQuery('<span class="plex-missing-episodes"> - <span>' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
+                jQuery('<span class="plex-missing-episodes"> - <span>' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class^='_2qK3U'] > div, div[class*='_2qK3U'] > div");
             }
         }
         if (episodes.unaired.length) {
             if (!jQuery('.plex-unaired-episodes').length) {
-                jQuery('<span class="plex-unaired-episodes"> - <span>' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
+                jQuery('<span class="plex-unaired-episodes"> - <span>' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class^='_2qK3U'] > div, div[class*='_2qK3U'] > div");
             }
         }
 

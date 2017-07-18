@@ -1,12 +1,12 @@
 var settings;
 var global_server_addresses;
 var server_addresses = {};
-var criticRatingRtEl = "div[class^='CriticRating-rt'], div[class*=' CriticRating-rt']";
-var titleRatingContainerEl = "div[class^='PrePlayRatingRightTitle-ratingRightTitle-'], div[class*=' PrePlayRatingRightTitle-ratingRightTitle-']";
-var titleCriticRatingContainerEl = "span[class^='PrePlayRatingRightTitle-criticRating'], span[class*=' PrePlayRatingRightTitle-criticRating']";
-var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*=' CriticRating-container-']";
-var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-']";
-var headerToolbarContainerEl = "div[class^='pageHeaderToolbar-toolbar-'], div[class*=' pageHeaderToolbar-toolbar-']";
+var criticRatingRtEl = "div[class^='CriticRating-rt'], div[class*=' CriticRating-rt'], div[class^='Zm7_X'],div[class*='Zm7_X']";
+var titleRatingContainerEl = "div[class^='PrePlayRatingRightTitle-ratingRightTitle-'], div[class*=' PrePlayRatingRightTitle-ratingRightTitle-'], div[class^='_1d4Yy'], div[class*='_1d4Yy']";
+var titleCriticRatingContainerEl = "span[class^='PrePlayRatingRightTitle-criticRating'], span[class*=' PrePlayRatingRightTitle-criticRating'], span[class^='_2J_tn'], span[class*='_2J_tn']";
+var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*=' CriticRating-container-'], div[class^='_2t5Lw'], div[class*='_2t5Lw']";
+var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-'], div[class^='_16xaH'], div[class*='_16xaH']";
+var headerToolbarContainerEl = "div[class^='pageHeaderToolbar-toolbar-'], div[class*=' pageHeaderToolbar-toolbar-'], div[class^='_1lW-M'], div[class*='_1lW-M']";
 var task_counter = 0;
 var server;
 
