@@ -40,6 +40,8 @@ var missingEpisodes = {
                             console.log('plexius missing', missing);
 
                             var parsedMissingEpisodes = missingEpisodes.splitEpisodes(missing);
+                            console.log('plexius parsed missing episodes', parsedMissingEpisodes);
+
                             missingEpisodes.injectData(traktSeries[0].show.ids.slug, parsedMissingEpisodes, 'episodes');
                         });
                     }
@@ -71,6 +73,8 @@ var missingEpisodes = {
                     console.log('plexius missing', missing);
 
                     var parsedMissingSeasons = missingEpisodes.splitEpisodes(missing);
+                    console.log('plexius parsed missing seasons', parsedMissingSeasons);
+
                     missingEpisodes.injectData(traktSeries[0].show.ids.slug, parsedMissingSeasons, 'seasons');
                 });
             });
@@ -110,12 +114,23 @@ var missingEpisodes = {
         if (episodes.aired.length) {
             if (!jQuery('.plex-missing-episodes').length) {
                 jQuery('<span class="plex-missing-episodes"> - <span>' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
+                console.log('plexius appended to', jQuery("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div"));
+            } else {
+                console.log('plexius episode already injected');
             }
+        } else {
+            console.log('plexius no missing aired episodes', episodes);
         }
         if (episodes.unaired.length) {
             if (!jQuery('.plex-unaired-episodes').length) {
                 jQuery('<span class="plex-unaired-episodes"> - <span>' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
+                console.log('plexius appended to', jQuery("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div"));
+
+            } else {
+                console.log('plexius season already injected');
             }
+        } else {
+            console.log('plexius no missing unaired episodes', episodes);
         }
 
         jQuery('.plex-missing-episodes span').click(function() {

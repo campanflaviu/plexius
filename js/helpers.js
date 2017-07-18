@@ -1,4 +1,4 @@
-var setDefaultOptions = function(callback) {
+var getDefaultOptions = function(callback) {
     chrome.storage.sync.get(function(results) {
         callback(results);
     });
@@ -271,6 +271,10 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
         });
     }
 };
+
+function getStatsURL() {
+    return chrome.extension.getURL('stats.html');
+}
 
 var cleanText = function(text) {
     text = text.replace(/[ÀÁÂÃÄÅ]/g,'A');

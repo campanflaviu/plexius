@@ -12,8 +12,11 @@ var server;
 
 
 var checkPage = function() {
-    if (/\/details\?key=%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) { // check if on movie/tv show page
-        checkElement();
+    if (jQuery('#plex.application').length) {
+        if (/\/details\?key=%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) { // check if on movie/tv show page
+            checkElement();
+        }
+        insertStatsButton();
     }
 };
 
@@ -21,6 +24,14 @@ window.onhashchange = function() {
     closeModal();
     checkPage();
 };
+
+function insertStatsButton() {
+    jQuery(document).arrive('.nav-bar-right', {existing: true}, function() {
+        if (!jQuery('.plexius-stats-btn').length) {
+            jQuery('.nav.nav-bar-nav.nav-bar-right').prepend('<li class="plexius-stats-btn"><a title="Stats" href="' + getStatsURL() + '" data-toggle="tooltip" data-original-title="Stats" target="_blank"><span class="activity-badge badge badge-transparent hidden">0</span><i class="glyphicon pie-chart"></i></a></li>');
+        }
+    });
+}
 
 
 function checkElement() {
@@ -88,7 +99,7 @@ function checkElement() {
 }
 
 // first run
-setDefaultOptions(function(storedSettings) {
+getDefaultOptions(function(storedSettings) {
     settings = storedSettings;
     checkPage();
 });
