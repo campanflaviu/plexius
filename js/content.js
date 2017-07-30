@@ -1,12 +1,12 @@
 var settings;
 var global_server_addresses;
 var server_addresses = {};
-var criticRatingRtEl = "div[class^='CriticRating-rt'], div[class*=' CriticRating-rt'], div[class^='Zm7_X'],div[class*='Zm7_X']";
-var titleRatingContainerEl = "div[class^='PrePlayRatingRightTitle-ratingRightTitle-'], div[class*=' PrePlayRatingRightTitle-ratingRightTitle-'], div[class^='_1d4Yy'], div[class*='_1d4Yy']";
-var titleCriticRatingContainerEl = "span[class^='PrePlayRatingRightTitle-criticRating'], span[class*=' PrePlayRatingRightTitle-criticRating'], span[class^='_2J_tn'], span[class*='_2J_tn']";
-var criticRatingContainerEl = "div[class^='CriticRating-container-'], div[class*=' CriticRating-container-'], div[class^='_2t5Lw'], div[class*='_2t5Lw']";
-var imdbRatingContainerEl = "div[class^='CriticRating-imdb-'], div[class*=' CriticRating-imdb-'], div[class^='_16xaH'], div[class*='_16xaH']";
-var headerToolbarContainerEl = "div[class^='pageHeaderToolbar-toolbar-'], div[class*=' pageHeaderToolbar-toolbar-'], div[class^='_1lW-M'], div[class*='_1lW-M']";
+var criticRatingRtEl = elementsStartingWithClass('CriticRating-rt', 'Zm7_X');
+var titleRatingContainerEl = elementsStartingWithClass('PrePlayRatingRightTitle-ratingRightTitle-', '_1d4Yy');
+var titleCriticRatingContainerEl = elementsStartingWithClass('PrePlayRatingRightTitle-criticRating', '_2J_tn');
+var criticRatingContainerEl = elementsStartingWithClass('CriticRating-container-', '_2t5Lw');
+var imdbRatingContainerEl = elementsStartingWithClass('CriticRating-imdb-', '_16xaH');
+var headerToolbarContainerEl = elementsStartingWithClass('pageHeaderToolbar-toolbar-', '_1lW-M');
 var task_counter = 0;
 var server;
 
@@ -27,20 +27,7 @@ function checkElement() {
     // go forward as soon as the title for movie/tv show/episode is rendered
     jQuery(document).arrive(titleRatingContainerEl, {existing: true}, function() {
 
-        var requests_url;
-        if (localStorage.myPlexAccessToken) {
-            requests_url = 'https://plex.tv/pms';
-        } else {
-            var url_matches = page_url.match(/^?\:\/\/(.+):(\d+)\/web\/.+/);
-            requests_url = window.location.protocol + '//' + url_matches[1] + ':' + url_matches[2];
-        }
-
-        getServerAddresses(requests_url, localStorage.myPlexAccessToken, function(server_addresses) {
-
-            // there is a built in imdb rating for some movies
-            if (jQuery(imdbRatingContainerEl).length) {
-                return;
-            }
+        getServerAddresses(localStorage.myPlexAccessToken, function() {
 
             var parent_item_id, machine_identifier;
             var page_identifier = document.URL.match(/\/server\/(.[^\/]+)\/details\?key=%2Flibrary%2Fmetadata%2F(\d+)$/);
@@ -61,25 +48,22 @@ function checkElement() {
 
             var metadata_xml_url = global_server_addresses[machine_identifier].uri + '/library/metadata/' + parent_item_id + '?X-Plex-Token=' + localStorage.myPlexAccessToken;
 
-            console.log('plexius', metadata_xml_url);
             getXML(metadata_xml_url, function(metadata_xml) {
 
-                movieDetails = processPageDetails(metadata_xml);
+                mediaDetails = processPageDetails(metadata_xml);
 
-                if (!movieDetails) {
+                if (!mediaDetails) {
                     return;
                 }
 
-                // add IMDB rating
-                if (settings.showIMDB) {
-                    omdbApi.processResource(movieDetails);
-                }
+                // IMDB rating
+                omdbApi.processResource(mediaDetails);
 
-                // add trakt rating
-                traktApi.processResource(movieDetails);
+                // trakt rating
+                traktApi.processResource(mediaDetails);
 
-                // add missingEpisodes
-                missingEpisodes.init(global_server_addresses[machine_identifier], movieDetails);
+                // missingEpisodes
+                missingEpisodes.init(global_server_addresses[machine_identifier], mediaDetails);
 
             });
         });
