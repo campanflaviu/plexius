@@ -1,14 +1,24 @@
-var getDefaultOptions = function(callback) {
+var manifest = chrome.runtime.getManifest();
+
+ // custom debugger
+ // TODO create an option to disable debugging and then add meaningful debug logs
+var debug = console.log.bind(console, 'Plexius ' + manifest.version);
+
+
+
+
+function getDefaultOptions(callback) {
     chrome.storage.sync.get(function(results) {
         callback(results);
     });
-};
+}
 
-var getJSONWithCache = function(url, callback, custom_headers) {
+function getJSONWithCache(url, callback, custom_headers) {
     cache_get('cache-' + url, function(result) {
         if (result) {
             callback(result);
         } else {
+            debug('no cache found');
             // cache missed or stale, grabbing new data
             getJSON(url, function(result) {
                 cache_set('cache-' + url, result);
@@ -16,9 +26,9 @@ var getJSONWithCache = function(url, callback, custom_headers) {
             }, custom_headers);
         }
     });
-};
+}
 
-var getJSON = function(url, callback, custom_headers) {
+function getJSON(url, callback, custom_headers) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     for (var header_name in custom_headers) {
@@ -37,9 +47,9 @@ var getJSON = function(url, callback, custom_headers) {
         callback({ 'error': xhr.statusText });
     };
     xhr.send();
-};
+}
 
-var getXML = function(url, callback) {
+function getXML(url, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onload = function(e) {
@@ -55,9 +65,9 @@ var getXML = function(url, callback) {
         callback(xhr.statusText);
     };
     xhr.send();
-};
+}
 
-var getXMLWithTimeout = function(url, timeout, callback) {
+function getXMLWithTimeout(url, timeout, callback) {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.onload = function(e) {
@@ -77,22 +87,22 @@ var getXMLWithTimeout = function(url, timeout, callback) {
         callback(xhr.statusText);
     };
     xhr.send();
-};
+}
 
-var local_storage_set = function(key, value) {
+function local_storage_set(key, value) {
     var hash = {};
     hash[key] = value;
     chrome.storage.local.set(hash);
-};
+}
 
-var local_storage_get = function(key, callback) {
+function local_storage_get(key, callback) {
     chrome.storage.local.get(key, function(result) {
         var value = result[key];
         callback(value);
     });
-};
+}
 
-var cache_set = function(key, data) {
+function cache_set(key, data) {
     local_storage_get('cache_keys', function(cache_keys) {
         // check if cache keys don't exist yet
         if (!cache_keys) {
@@ -106,9 +116,9 @@ var cache_set = function(key, data) {
         // store cached data with url key
         local_storage_set(key, data);
     });
-};
+}
 
-var cache_get = function(key, callback) {
+function cache_get(key, callback) {
     local_storage_get(key, function(result) {
         if (result) {
             callback(result);
@@ -116,18 +126,17 @@ var cache_get = function(key, callback) {
             callback(null);
         }
     });
-};
+}
 
-var getResourcePath = function(resource) {
+function getResourcePath(resource) {
     return chrome.extension.getURL('assets/' + resource);
-};
+}
 
-var background_storage_set = function(key, value) {
+function background_storage_set(key, value) {
     chrome.runtime.sendMessage({ "type": "set", "key": key, "value": value });
-};
+}
 
-
-var processPageDetails = function(metadata_xml) {
+function processPageDetails(metadata_xml) {
     var mediaContainer = metadata_xml.getElementsByTagName('MediaContainer')[0];
     var agent;
     var details = {};
@@ -170,40 +179,79 @@ var processPageDetails = function(metadata_xml) {
         details.imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
     }
     return details;
-};
+}
 
-var injectRating = function(ratingProvider) {
+function injectRating(ratingProvider) {
     // check if there is a container for reviews. If not, inject it
     if (!jQuery(titleCriticRatingContainerEl).length && !jQuery('.plexius-title-rating').length) {
-        jQuery(titleRatingContainerEl).append('<span class="plexius-title-rating"><div class="plexius-rating-container"><div class="plexius-rating-rt"><div class="plexius-rating"></div></div></div></span>');
+        jQuery(titleRatingContainerEl).append(createEl({
+            type: 'span',
+            class: 'plexius-title-rating',
+            children: [{
+                type: 'div',
+                class: 'plexius-rating-container',
+                children: [{
+                    type: 'div',
+                    class: 'plexius-rating-rt',
+                    children: [{
+                        type: 'div',
+                        class: 'plexius-rating'
+                    }]
+                }]
+            }]
+        }));
         criticRatingRtEl = '.plexius-rating';
     } else
-    // check if there is a container for multiple reviews. If not, inject it
-    if (!jQuery(criticRatingContainerEl).children(criticRatingRtEl).length) {
-        jQuery(criticRatingContainerEl).children(0).wrap('<div class="plexius-rating"></div>');
-        criticRatingRtEl = '.plexius-rating';
+        // check if there is a container for multiple reviews. If not, inject it
+        if (!jQuery(criticRatingContainerEl).children(criticRatingRtEl).length) {
+            criticRatingRtEl = '.plexius-rating';
+            jQuery(criticRatingContainerEl).children(0).wrap(createEl({
+                type: 'div',
+                class: 'plexius-rating'
+            }));
+        }
+
+    // inject the rating
+    var ratingClass = 'plexius-' + ratingProvider.name + '-rating-container';
+    if (!jQuery(ratingClass).length) { // skip if already injected
+        jQuery(criticRatingRtEl).append(createEl({
+            type: 'a',
+            attrs: {
+                href: ratingProvider.linkUri,
+                target: '_blank'
+            },
+            children: [{
+                type: 'div',
+                class: ratingClass,
+                children: [{
+                    type: 'img',
+                    class: 'plexius-' + ratingProvider.name + '-rating',
+                    attrs: {
+                        src: ratingProvider.imgSrc,
+                    }
+                },
+                ratingProvider.rating]
+            }]
+
+        }));
     }
+}
 
-    var el = jQuery(criticRatingRtEl);
-    var newElement = '<a href="' + ratingProvider.linkUri + '" target="_blank"><div class="plexius-' + ratingProvider.name + '-rating-container"><img class="plexius-' + ratingProvider.name + '-rating" src="' + ratingProvider.imgSrc + '">' + ratingProvider.rating + '</div></a>';
-    jQuery(criticRatingRtEl).append(newElement);
-};
-
-
-var getServerAddresses = function(requests_url, plex_token, callback) {
+function getServerAddresses(plex_token, callback) {
     if (global_server_addresses) {
         callback(global_server_addresses);
     } else {
-        var xml_lookup_tag_name, request_path;
+        var xml_lookup_tag_name, requestPath;
         // Lookups are different if we are going to plex.tv as opposed to a local IP address
         if (plex_token) {
             xml_lookup_tag_name = 'Device';
-            request_path = '/resources?includeHttps=1';
+            requestPath = '/resources?includeHttps=1';
         } else {
             xml_lookup_tag_name = 'Server';
-            request_path = '/servers?includeLite=1';
+            requestPath = '/servers?includeLite=1';
         }
-        getXML(requests_url + request_path + '&X-Plex-Token=' + plex_token, function(servers_xml) {
+        var reqestsUrl = getRequestsUrl();
+        getXML(reqestsUrl + requestPath + '&X-Plex-Token=' + plex_token, function(servers_xml) {
             var devices = servers_xml.getElementsByTagName('MediaContainer')[0].getElementsByTagName(xml_lookup_tag_name);
             var task_counter = 0;
 
@@ -225,6 +273,7 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
 
                     // Set global_server_addresses so results are cached
                     global_server_addresses = server_addresses;
+                    debug('servers found: ', server_addresses);
                     callback(server_addresses);
                 }
             };
@@ -247,7 +296,7 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
                             };
                         }
                     } else {
-                        console.error('plexius', 'Failed to ping address for ' + machine_identifier + ' - ' + uri);
+                        debug('Failed to ping address for ' + machine_identifier + ' - ' + uri);
                     }
                     task_completed();
                 });
@@ -262,7 +311,7 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
                 var access_token = device.getAttribute('accessToken');
                 for (var j = 0; j < connections.length; j++) {
                     var connection = connections[j];
-                    var uri = connection.hasAttribute('uri') ? connection.getAttribute('uri') : window.location.protocol + '//' + connection.getAttribute('address') + ':' + connection.getAttribute('port');
+                    var uri = getConnectionUri(connection);
                     var local = !connection.hasAttribute('uri') || connection.getAttribute('local') == 1;
                     task_counter += 1;
                     pingAddress(machine_identifier, name, uri, access_token, local);
@@ -270,17 +319,88 @@ var getServerAddresses = function(requests_url, plex_token, callback) {
             }
         });
     }
-};
+}
+
+function elementsStartingWithClass() {
+    return elementsStartingWithClassArray.apply(this, arguments).join();
+}
+
+function elementsStartingWithClassArray() {
+    var elements = [];
+    for (var i = 0; i < arguments.length; i++) {
+        elements.push('[class^="' + arguments[i] +'"]');
+        elements.push('[class*=" ' + arguments[i] +'"]'); // add wildcard https://stackoverflow.com/a/13352103/951052
+    }
+    return elements;
+}
+
+function elementsStartingWithClassAndSuffix(classes, suffix) {
+    var elements = elementsStartingWithClassArray.apply(this, classes);
+    for (var i = 0; i < elements.length; i++) {
+        elements[i] += suffix;
+    }
+    return elements.join();
+}
+
+
+function createEl(elementTree) {
+    var element, childElement, i;
+
+    if (typeof elementTree === 'undefined') {
+        return false;
+    }
+
+    if (typeof elementTree === 'string') {
+        return document.createTextNode(elementTree);
+    }
+
+    element = document.createElement(elementTree.type);
+    if (elementTree.class) {
+        element.className = elementTree.class;
+    }
+    if (elementTree.attrs) {
+        for(var attr in elementTree.attrs) {
+            element.setAttribute(attr, elementTree.attrs[attr]);
+        }
+    }
+    if (elementTree.children) {
+        for (i = 0; i < elementTree.children.length; i++) {
+            childElement = createEl(elementTree.children[i]);
+            if (childElement !== false) {
+                element.appendChild(childElement);
+            }
+        }
+    }
+    return element;
+}
+
 
 function getStatsURL() {
     return chrome.extension.getURL('stats.html');
 }
 
-var cleanText = function(text) {
-    text = text.replace(/[ÀÁÂÃÄÅ]/g,'A');
-    text = text.replace(/[àáâãäå]/g,'a');
-    text = text.replace(/[ÈÉÊË]/g,'E');
-    text = text.replace(/[é]/g,'e');
+function cleanText(text) {
+    text = text.replace(/[ÀÁÂÃÄÅ]/g, 'A');
+    text = text.replace(/[àáâãäå]/g, 'a');
+    text = text.replace(/[ÈÉÊË]/g, 'E');
+    text = text.replace(/[é]/g, 'e');
 
     return encodeURIComponent(text);
-};
+}
+
+function getRequestsUrl() {
+    if (localStorage.myPlexAccessToken) {
+        return 'https://plex.tv/pms';
+    } else {
+        var url_matches = page_url.match(/^?\:\/\/(.+):(\d+)\/web\/.+/);
+        return window.location.protocol + '//' + url_matches[1] + ':' + url_matches[2];
+    }
+}
+
+function getConnectionUri(connection) {
+    if (connection.hasAttribute('uri')) {
+        return connection.getAttribute('uri');
+    } else {
+        return window.location.protocol + '//' + connection.getAttribute('address') + ':' + connection.getAttribute('port');
+    }
+}

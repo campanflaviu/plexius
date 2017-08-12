@@ -18,17 +18,17 @@ var missingEpisodes = {
     processEpisodes: function(resource) {
 
         missingEpisodes.getPresentEpisodes(resource.seasonMetadataId, function(presentEpisodes) {
-            console.log('plexius present episodes', presentEpisodes);
+            debug('present episodes', presentEpisodes);
             plexApi.getSeries(resource.seriesMetadataId, function(seriesXml) {
 
                 var seriesYear = seriesXml.getElementsByTagName('MediaContainer')[0].getAttribute('parentYear');
                 traktApi.getShowByName(resource.title, seriesYear, false, function(traktSeries) {
 
-                    console.log('plexius traktSeries', traktSeries);
+                    debug('traktSeries', traktSeries);
                     if (traktSeries[0] && traktSeries[0].show) {
                         traktApi.getAllEpisodesBySlug(traktSeries[0].show.ids.slug, resource.seasonIndex, function(allEpisodes) {
 
-                            console.log('plexius allEpisodes', allEpisodes);
+                            debug('allEpisodes', allEpisodes);
                             var tilesToInsert = {};
                             var missing = [];
                             for (var i = 0; i < allEpisodes.length; i++) {
@@ -37,10 +37,10 @@ var missingEpisodes = {
                                     missing.push(episode);
                                 }
                             }
-                            console.log('plexius missing', missing);
+                            debug('missing', missing);
 
                             var parsedMissingEpisodes = missingEpisodes.splitEpisodes(missing);
-                            console.log('plexius parsed missing episodes', parsedMissingEpisodes);
+                            debug('parsed missing episodes', parsedMissingEpisodes);
 
                             missingEpisodes.injectData(traktSeries[0].show.ids.slug, parsedMissingEpisodes, 'episodes');
                         });
@@ -51,16 +51,16 @@ var missingEpisodes = {
     },
 
     processSeasons: function(resource) {
-        console.log('plexius resource', resource);
+        debug('resource', resource);
         missingEpisodes.getPresentSeasons(resource.seriesMetadataId, function(presentSeasons) {
 
-            console.log('plexius present seasons', presentSeasons);
+            debug('present seasons', presentSeasons);
             traktApi.getShowByName(resource.resourceTitle, resource.resourceYear, false, function(traktSeries) {
 
-                console.log('plexius traktSeries', traktSeries);
+                debug('traktSeries', traktSeries);
                 traktApi.getAllSeasonBySlug(traktSeries[0].show.ids.slug, function(allSeasons) {
 
-                    console.log('plexius allSeasons', allSeasons);
+                    debug('allSeasons', allSeasons);
                     var tilesToInsert = {};
                     var missing = [];
                     for (var i = 0; i < allSeasons.length; i++) {
@@ -70,10 +70,10 @@ var missingEpisodes = {
                             missing.push(season);
                         }
                     }
-                    console.log('plexius missing', missing);
+                    debug('missing', missing);
 
                     var parsedMissingSeasons = missingEpisodes.splitEpisodes(missing);
-                    console.log('plexius parsed missing seasons', parsedMissingSeasons);
+                    debug('parsed missing seasons', parsedMissingSeasons);
 
                     missingEpisodes.injectData(traktSeries[0].show.ids.slug, parsedMissingSeasons, 'seasons');
                 });
@@ -113,24 +113,40 @@ var missingEpisodes = {
     injectData: function(showName, episodes, resourceType) {
         if (episodes.aired.length) {
             if (!jQuery('.plex-missing-episodes').length) {
-                jQuery('<span class="plex-missing-episodes"> - <span>' + episodes.aired.length + ' missing</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
-                console.log('plexius appended to', jQuery("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div"));
+                jQuery(createEl({
+                    type: 'span',
+                    class: 'plex-missing-episodes',
+                    children: [
+                        ' - ',{
+                            type: 'span',
+                            children: [episodes.aired.length + ' missing']
+                        }
+                    ]
+                })).appendTo(elementsStartingWithClassAndSuffix(['PrePlayDescendantList-descendantHubCellHeader', '_2qK3U'], ' > div'));
             } else {
-                console.log('plexius episode already injected');
+                debug('episode already injected');
             }
         } else {
-            console.log('plexius no missing aired episodes', episodes);
+            debug('no missing aired episodes', episodes);
         }
         if (episodes.unaired.length) {
             if (!jQuery('.plex-unaired-episodes').length) {
-                jQuery('<span class="plex-unaired-episodes"> - <span>' + episodes.unaired.length + ' unaired</span></span>').appendTo("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div");
-                console.log('plexius appended to', jQuery("div[class^='PrePlayDescendantList-descendantHubCellHeader'] > div, div[class*='PrePlayDescendantList-descendantHubCellHeader'] > div"));
+                jQuery(createEl({
+                    type: 'span',
+                    class: 'plex-unaired-episodes',
+                    children: [
+                        ' - ',{
+                            type: 'span',
+                            children: [episodes.unaired.length + ' unaired']
+                        }
+                    ]
+                })).appendTo(elementsStartingWithClassAndSuffix(['PrePlayDescendantList-descendantHubCellHeader', '_2qK3U'], ' > div'));
 
             } else {
-                console.log('plexius season already injected');
+                debug('season already injected');
             }
         } else {
-            console.log('plexius no missing unaired episodes', episodes);
+            debug('no missing unaired episodes', episodes);
         }
 
         jQuery('.plex-missing-episodes span').click(function() {
@@ -145,7 +161,36 @@ var missingEpisodes = {
     },
 
     injectPopup: function() {
-        jQuery('html').append('<div id="missingEpisodes" class="modal-content plexius-content"><div class="modal-header"><h4 class="title"></h4><button type="button" class="close close-missing-episodes" data-dismiss="modal"><i class="glyphicon remove-2"></i></button></div><div class="modal-body dark-scrollbar"></div></div>');
+        jQuery('html').append(createEl({
+            type: 'div',
+            attrs: {
+                id: 'missingEpisodes'
+            },
+            class: 'modal-content plexius-content',
+            children: [{
+                type: 'div',
+                class: 'modal-header',
+                children: [{
+                    type: 'h4',
+                    class: 'title'
+                }, {
+                    type: 'button',
+                    class: 'close close-missing-episodes',
+                    attrs: {
+                        type: 'button',
+                        'data-dismiss': 'modal'
+                    },
+                    children: [{
+                        type: 'i',
+                        class: 'glyphicon remove-2',
+                    }]
+                }]
+            }, {
+                type: 'div',
+                class: 'modal-body dark-scrollbar'
+            }]
+
+        }));
         jQuery('.close-missing-episodes').click(function() {
             closeModal();
         });
@@ -196,13 +241,35 @@ var missingEpisodes = {
 
             jQuery('#missingEpisodes .title').text(resources.length + ' ' + type + ' ' + resourceType.charAt(0).toUpperCase() + resourceType.slice(1));
 
-            var modalBody = '<a target="_blank" href="' + resourceUrl + '"><div class="missing-tile"><div class="missing-aired">' + formattedDate + '</div></div><div class="missing-title">' + resourceTitle + '</div>';
-
+            var episodesMissingNumber;
             if (resourceType === 'episodes') {
-                modalBody += '<div class="missing-number">Episode ' + resource.number +'</div>';
+                episodesMissingNumber = {
+                    type: 'div',
+                    class: 'missing-number',
+                    children: ['Episode' + resource.number]
+                };
             }
 
-            jQuery('#missingEpisodes .modal-body').append(modalBody + '</a>');
+            jQuery('#missingEpisodes .modal-body').append(createEl({
+                type: 'a',
+                attrs: {
+                    target: '_blank',
+                    href: resourceUrl
+                },
+                children: [{
+                    type: 'div',
+                    class: 'missing-tile',
+                    children: [{
+                        type: 'div',
+                        class: 'missing-aired',
+                        children: [formattedDate]
+                    }]
+                }, {
+                    type: 'div',
+                    class: 'missing-title',
+                    children: [resourceTitle]
+                }, episodesMissingNumber]
+            }));
         });
     }
 

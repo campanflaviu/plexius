@@ -64,20 +64,20 @@ var traktApi = {
 
     getAllSeasonBySlug: function(showSlug, callback){
         var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons?extended=full';
-        console.log('plexius apiUrl', apiUrl);
+        debug('apiUrl', apiUrl);
 
         getJSONWithCache(apiUrl, function(traktJson) {
-        console.log('plexius traktJson', traktJson);
+        debug('traktJson', traktJson);
             callback(traktJson);
         }, traktApi.customHeaders);
     },
 
     getAllEpisodesBySlug: function(showSlug, showIndex, callback){
         var apiUrl = traktApi.apiUri + 'shows/' + showSlug + '/seasons/' + showIndex + '?extended=full';
-        console.log('plexius apiUrl', apiUrl);
+        debug('apiUrl', apiUrl);
 
         getJSONWithCache(apiUrl, function(traktJson) {
-        console.log('plexius traktJson', traktJson);
+        debug('traktJson', traktJson);
             callback(traktJson);
         }, traktApi.customHeaders);
     },
