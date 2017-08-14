@@ -5,9 +5,8 @@ Current features:
  - IMDB and Trakt ratings
  - missing/unaired episodes/series (via Trakt)
  - trailer link for movies
- 
- Upcoming features:
- - stats
+ - stats (only movies and still in development)
+
 
 Chek releases page for changelog
 
