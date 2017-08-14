@@ -18,6 +18,7 @@
         "css": ["styles.css"],
         "js": [
             "js/jquery-3.1.1.min.js",
+            "js/promise.min.js",
             "js/arrive.min.js",
             "js/constants.js",
             "js/helpers.js",
@@ -25,6 +26,7 @@
             "js/apis/omdb.js",
             "js/apis/trakt.js",
             "js/plugins/missingEpisodes.js",
+            "js/plugins/stats.js",
             "js/content.js"
         ],
         "matches": ["*://*/web/*"],

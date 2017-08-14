@@ -16,8 +16,13 @@ var checkPage = function() {
         if (/\/details\?key=%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) { // check if on movie/tv show page
             checkElement();
         }
-        // TODO
-        // insertStatsButton();
+
+        // show the stats button in the navigation bar if they were previously gathered
+        local_storage_get('PlexiusStats', function(result) {
+            if (result.movie) {
+                insertStatsButton();
+            }
+        });
     }
 };
 
@@ -29,7 +34,26 @@ window.onhashchange = function() {
 function insertStatsButton() {
     jQuery(document).arrive('.nav-bar-right', {existing: true}, function() {
         if (!jQuery('.plexius-stats-btn').length) {
-            jQuery('.nav.nav-bar-nav.nav-bar-right').prepend('<li class="plexius-stats-btn"><a title="Stats" href="' + getStatsURL() + '" data-toggle="tooltip" data-original-title="Stats" target="_blank"><span class="activity-badge badge badge-transparent hidden">0</span><i class="glyphicon pie-chart"></i></a></li>');
+            jQuery('.nav.nav-bar-nav.nav-bar-right').prepend(createEl({
+                type: 'li',
+                class: 'plexius-stats-btn',
+                children: [{
+                    type: 'a',
+                    attrs: {
+                        title: 'Stats',
+                        href: getStatsURL(),
+                        'data-toggle': 'tooltip',
+                        target: '_blank'
+                    },
+                    children: [{
+                        type: 'span',
+                        class: 'activity-badge badge badge-transparent hidden'
+                    }, {
+                        type: 'i',
+                        class: 'glyphicon pie-chart'
+                    }]
+                }]
+            }));
         }
     });
 }
@@ -77,6 +101,14 @@ function checkElement() {
                 // missingEpisodes
                 missingEpisodes.init(global_server_addresses[machine_identifier], mediaDetails);
 
+            });
+
+            // update stats if they are older than 1 day
+            local_storage_get('PlexiusStatsUpdated', function(result) {
+                if (!result || Date.now() - result > 1000 * 60 * 60 * 24) {
+                    Stats.generate(global_server_addresses[machine_identifier].uri, localStorage.myPlexAccessToken, function(stats) {
+                    });
+                }
             });
         });
         jQuery(document).unbindArrive();

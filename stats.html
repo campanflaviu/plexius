@@ -1,12 +1,39 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Plexius Stats</title>
-</head>
-<body>
-stats!
 
-<script type="text/javascript" src="js/helpers.js"></script>
-<script type="text/javascript" src="stats.js"></script>
+<head>
+    <title>Plexius Stats</title>
+</head>
+
+<body style="background-color: #3F4245; color: white">
+    <div id="error" style="display: none">Stats are not calculated yet, go back to Plex Web and wait a couple of minutes...</div>
+    <div>
+        <canvas id="movieAdded" width="400" height="400"></canvas>
+    </div>
+    <div>
+        <div style="display: inline-block;">
+            <canvas id="resolutionCount" width="400" height="400"></canvas>
+        </div>
+        <div style="display: inline-block;">
+            <canvas id="movieRatings" width="400" height="400"></canvas>
+        </div>
+        <div style="display: inline-block;">
+            <canvas id="genreCount" width="600" height="400"></canvas>
+        </div>
+        <div style="display: inline-block;">
+            <canvas id="contentRatings" width="400" height="400"></canvas>
+        </div>
+        <div style="display: inline-block;">
+            <canvas id="viewCount" width="400" height="400"></canvas>
+        </div>
+    </div>
+    <div>
+        <canvas id="yearCount" width="400" height="400"></canvas>
+    </div>
+    <script type="text/javascript" src="js/chart.bundle.min.js"></script>
+    <script type="text/javascript" src="js/chart.piecelabel.min.js"></script>
+    <script type="text/javascript" src="js/randomColor.min.js"></script>
+    <script type="text/javascript" src="stats.js"></script>
 </body>
+
 </html>
