@@ -113,11 +113,6 @@
 /* Modals */
 /* Modal Content/Box */
 .plexius-content {
-    display: none; /* Hidden by default */
-    margin: 15% auto; /* 15% from the top and centered */
-    border: 1px solid #888;
-    width: 60%; /* Could be more or less, depending on screen size */
-    height: 480px;
     -webkit-animation-name: animatetop;
     -webkit-animation-duration: 0.4s;
     animation-name: animatetop;

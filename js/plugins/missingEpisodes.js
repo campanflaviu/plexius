@@ -161,35 +161,44 @@ var missingEpisodes = {
     },
 
     injectPopup: function() {
-        jQuery('html').append(createEl({
+        jQuery('body').append(createEl({
+
             type: 'div',
+            class: 'modal modal-lg fade in',
             attrs: {
-                id: 'missingEpisodes'
+                id: 'missingEpisodes',
+                style: 'display: none'
             },
-            class: 'modal-content plexius-content',
             children: [{
                 type: 'div',
-                class: 'modal-header',
+                class: 'modal-dialog',
                 children: [{
-                    type: 'h4',
-                    class: 'title'
-                }, {
-                    type: 'button',
-                    class: 'close close-missing-episodes',
-                    attrs: {
-                        type: 'button',
-                        'data-dismiss': 'modal'
-                    },
+                    type: 'div',
+                    class: 'modal-content plexius-content',
                     children: [{
-                        type: 'i',
-                        class: 'glyphicon remove-2',
+                        type: 'div',
+                        class: 'modal-header',
+                        children: [{
+                            type: 'h4',
+                            class: 'title'
+                        }, {
+                            type: 'button',
+                            class: 'close close-missing-episodes',
+                            attrs: {
+                                type: 'button',
+                                'data-dismiss': 'modal'
+                            },
+                            children: [{
+                                type: 'i',
+                                class: 'glyphicon remove-2',
+                            }]
+                        }]
+                    }, {
+                        type: 'div',
+                        class: 'modal-body modal-body-scroll dark-scrollbar'
                     }]
                 }]
-            }, {
-                type: 'div',
-                class: 'modal-body dark-scrollbar'
             }]
-
         }));
         jQuery('.close-missing-episodes').click(function() {
             closeModal();

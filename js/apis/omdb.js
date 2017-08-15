@@ -31,7 +31,7 @@ var omdbApi = {
     processResource: function(movieDetails) {
         // no imdb rating for seasons
         // there is a built in imdb rating for some movies, so check for that too
-        if (!settings.showIMDB || jQuery(imdbRatingContainerEl).length || movieDetails.resourceType === 'season') {
+        if (!settings.showIMDB || jQuery(imdbRatingContainerEl).length || jQuery('.plexius-imdb-rating-container').length || movieDetails.resourceType === 'season') {
             return;
         }
         if (movieDetails.imdb_id) {

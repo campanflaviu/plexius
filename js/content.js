@@ -43,7 +43,7 @@ function insertStatsButton() {
                         title: 'Stats',
                         href: getStatsURL(),
                         'data-toggle': 'tooltip',
-                        target: '_blank'
+                        target: 'stats'
                     },
                     children: [{
                         type: 'span',
@@ -93,10 +93,14 @@ function checkElement() {
                 }
 
                 // IMDB rating
-                omdbApi.processResource(mediaDetails);
+                if (!jQuery('.plexius-imdb-rating-container').length) {
+                    omdbApi.processResource(mediaDetails);
+                }
 
                 // trakt rating
-                traktApi.processResource(mediaDetails);
+                if (!jQuery('.plexius-trakt-rating-container').length) {
+                    traktApi.processResource(mediaDetails);
+                }
 
                 // missingEpisodes
                 missingEpisodes.init(global_server_addresses[machine_identifier], mediaDetails);
