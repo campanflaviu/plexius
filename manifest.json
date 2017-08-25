@@ -29,7 +29,7 @@
             "js/plugins/stats.js",
             "js/content.js"
         ],
-        "matches": ["*://*/web/*"],
+        "matches": ["*://*/web/*", "*://*/desktop/*"],
         "run_at": "document_end"
     }],
 
