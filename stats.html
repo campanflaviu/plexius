@@ -3,36 +3,104 @@
 
 <head>
     <title>Plexius Stats</title>
+    <link href="js/libraries/c3js/c3.min.css" rel="stylesheet">
+    <link href="styles/stats.css" rel="stylesheet">
 </head>
 
-<body style="background-color: #3F4245; color: white">
-    <div id="error" style="display: none">Stats are not calculated yet, go back to Plex Web and wait a couple of minutes...</div>
-    <div>
-        <canvas id="movieAdded" width="400" height="400"></canvas>
+<body style="background-color: #3F4245;">
+    <div id="error" style="display: none">Stats are not calculated yet, return to Plex Web and wait a couple of minutes...</div>
+
+    <div id="movies-container">
+        <div class="heading" id="movies-heading">Movies</div>
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">movies by release year</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-center" id="movie-year-chart"></div>
+            </div>
+        </div>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">movie genres</div>
+                <div class="chart-title-right">movie ratings</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-left" id="movie-genre-chart"></div>
+                <div class="chart chart-right" id="movie-rating-chart"></div>
+            </div>
+        </div>
+
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">movies added over time</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-center" id="movie-date-added-chart"></div>
+            </div>
+        </div>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">movie content ratings</div>
+                <div class="chart-title-right">video resolutions</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-left" id="movie-content-rating-chart"></div>
+                <div class="chart chart-right" id="movie-resolution-chart"></div>
+            </div>
+        </div>
     </div>
-    <div>
-        <div style="display: inline-block;">
-            <canvas id="resolutionCount" width="400" height="400"></canvas>
+
+    <div class="shows-container">
+        <div class="heading" id="shows-heading">TV Shows</div>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">shows by year first aired</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-center" id="show-year-chart"></div>
+            </div>
         </div>
-        <div style="display: inline-block;">
-            <canvas id="movieRatings" width="400" height="400"></canvas>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">show genres</div>
+                <div class="chart-title-right">show ratings</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-left" id="show-genre-chart"></div>
+                <div class="chart chart-right" id="show-rating-chart"></div>
+            </div>
         </div>
-        <div style="display: inline-block;">
-            <canvas id="genreCount" width="600" height="400"></canvas>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">episodes added over time</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-center" id="show-date-added-chart"></div>
+            </div>
         </div>
-        <div style="display: inline-block;">
-            <canvas id="contentRatings" width="400" height="400"></canvas>
-        </div>
-        <div style="display: inline-block;">
-            <canvas id="viewCount" width="400" height="400"></canvas>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">show content ratings</div>
+                <div class="chart-title-right">video resolutions</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-left" id="show-content-rating-chart"></div>
+                <div class="chart chart-right" id="show-resolution-chart"></div>
+            </div>
         </div>
     </div>
-    <div>
-        <canvas id="yearCount" width="400" height="400"></canvas>
-    </div>
-    <script type="text/javascript" src="js/chart.bundle.min.js"></script>
-    <script type="text/javascript" src="js/chart.piecelabel.min.js"></script>
-    <script type="text/javascript" src="js/randomColor.min.js"></script>
+
+    <script type="text/javascript" src="js/libraries/d3.min.js"></script>
+    <script type="text/javascript" src="js/libraries/c3js/c3.min.js"></script>
+
     <script type="text/javascript" src="stats.js"></script>
 </body>
 

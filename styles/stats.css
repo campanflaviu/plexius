@@ -1,0 +1,70 @@
+.heading {
+    color: #FFFFFF;
+    font-size: 1.7em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.row-container {
+    height: 600px;
+    clear: both;
+    padding-bottom: 80px;
+}
+
+.chart-title-container {
+    height: 50px;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    padding-bottom: 20px;
+    clear: both;
+}
+
+.chart-title-left {
+    margin-left: 50px;
+    float: left;
+}
+
+.chart-title-right {
+    margin-right: 50px;
+    float: right;
+}
+
+.chart-container {
+    height: 550px;
+}
+
+.chart {
+    height: 550px;
+}
+
+.chart-left {
+    float: left;
+    width: 50%;
+    margin: auto;
+}
+
+.chart-right {
+    float: right;
+    width: 50%;
+    margin: auto;
+}
+
+.chart-center {
+    width: 90%;
+    margin: auto;
+}
+
+.c3-axis-x-label, .c3-axis-y-label {
+    fill: #FFFFFF;
+    font-size: 1.3em;
+}
+
+.c3-legend-item text, .tick text {
+    fill: #FFFFFF;
+    font-size: 1.3em;
+}
+
+.c3 .c3-axis-x path, .c3 .c3-axis-x line, .c3 .c3-axis-y path, .c3 .c3-axis-y line {
+    stroke: #FFFFFF;
+}

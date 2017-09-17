@@ -6,6 +6,11 @@ var Stats = {
   songs: [],
   albums: [],
 
+  genres: {
+    movies: {},
+    shows: {}
+  },
+
   movieGenresCount: {},
   showGenresCount: {},
   albumGenresCount: {},
@@ -14,11 +19,23 @@ var Stats = {
   sectionShowGenresCount: {},
   sectionAlbumGenresCount: {},
 
+  sectionKeys: {},
   sectionMovies: {},
   sectionShows: {},
   sectionEpisodes: {},
   sectionSongs: {},
   sectionAlbums: {},
+
+  machineIdentifier: null,
+
+  resolutionMappings: {
+    '4k' : '4K',
+    '1080' : '1080p',
+    '720' : '720p',
+    '480' : '480p',
+    '576' : '576p',
+    'sd' : 'SD'
+  },
 
   getSections: function(uri, plexToken, callback) {
     var librarySectionsUrl = uri + '/library/sections?X-Plex-Token=' + plexToken;
@@ -45,6 +62,8 @@ var Stats = {
       }
     }
 
+    Stats.sectionKeys = dirMetadata;
+
     return dirMetadata;
   },
 
@@ -52,21 +71,20 @@ var Stats = {
     var librarySectionsUrl = uri + '/library/sections/' + sectionKey + '/all?X-Plex-Token=' + plexToken;
 
     getXML(librarySectionsUrl, function(sectionXml) {
-      var moviesXml = sectionXml.getElementsByTagName('MediaContainer')[0].getElementsByTagName('Video');
-      var movies = [], movieData;
+      var moviesXml = sectionXml.getElementsByTagName('MediaContainer')[0].getElementsByTagName('Video'),
+          movies = [];
 
       for (var i = 0; i < moviesXml.length; i++) {
-        movieData = {};
-        movieData.contentRating = moviesXml[i].getAttribute('contentRating');
-        movieData.rating = moviesXml[i].getAttribute('rating');
-        movieData.year = moviesXml[i].getAttribute('year');
-        movieData.addedAt = moviesXml[i].getAttribute('addedAt');
-        movieData.viewCount = moviesXml[i].getAttribute('viewCount');
-
         var metadataXml = moviesXml[i].getElementsByTagName('Media')[0];
-        movieData.videoResolution = metadataXml.getAttribute('videoResolution');
 
-        movies.push(movieData);
+        movies.push({
+          contentRating: moviesXml[i].getAttribute('contentRating'),
+          rating: moviesXml[i].getAttribute('rating'),
+          year: moviesXml[i].getAttribute('year'),
+          addedAt: moviesXml[i].getAttribute('addedAt'),
+          viewCount: moviesXml[i].getAttribute('viewCount'),
+          videoResolution: metadataXml.getAttribute('videoResolution')
+        });
       }
       callback(movies);
     });
@@ -76,17 +94,16 @@ var Stats = {
     var librarySectionsUrl = uri + '/library/sections/' + sectionKey + '/all?X-Plex-Token=' + plexToken;
 
     getXML(librarySectionsUrl, function(sectionXml) {
-      var showsXml = sectionXml.getElementsByTagName('MediaContainer')[0].getElementsByTagName('Directory');
-      var shows = [], showData;
+      var showsXml = sectionXml.getElementsByTagName('MediaContainer')[0].getElementsByTagName('Directory'),
+          shows = [];
 
       for (var i = 0; i < showsXml.length; i++) {
-        showData = {};
-        showData.contentRating = showsXml[i].getAttribute('contentRating');
-        showData.rating = showsXml[i].getAttribute('rating');
-        showData.year = showsXml[i].getAttribute('year');
-        showData.duration = showsXml[i].getAttribute('duration');
-
-        shows.push(showData);
+        shows.push({
+          contentRating: showsXml[i].getAttribute('contentRating'),
+          rating: showsXml[i].getAttribute('rating'),
+          year: showsXml[i].getAttribute('year'),
+          duration: showsXml[i].getAttribute('duration')
+        });
       }
 
       callback(shows);
@@ -98,15 +115,15 @@ var Stats = {
 
     getXML(librarySectionEpisodesUrl, function(sectionXml) {
       var episodesXml = sectionXml.getElementsByTagName('MediaContainer')[0].getElementsByTagName('Video');
-      var episodes = [], episodeData, metadataXml;
+      var episodes = [], metadataXml;
 
       for (var i = 0; i < episodesXml.length; i++) {
-        episodeData = {};
-        episodeData.addedAt = episodesXml[i].getAttribute('addedAt');
         metadataXml = episodesXml[i].getElementsByTagName('Media')[0];
-        episodeData.videoResolution = metadataXml.getAttribute('videoResolution');
 
-        episodes.push(episodeData);
+        episodes.push({
+          addedAt: episodesXml[i].getAttribute('addedAt'),
+          videoResolution: metadataXml.getAttribute('videoResolution')
+        });
       }
 
       callback(episodes);
@@ -226,15 +243,7 @@ var Stats = {
         },
         addedAt,
         datesAdded = [],
-        formattedRating,
-        resolutionMappings = {
-          '4k' : '4K',
-          '1080' : '1080p',
-          '720' : '720p',
-          '480' : '480p',
-          '576' : '576p',
-          'sd' : 'SD'
-        };
+        formattedRating;
 
     for (var i = 0; i < movies.length; i++) {
 
@@ -309,7 +318,7 @@ var Stats = {
     var sortedDates = datesAdded.sort(function(a, b) {return a - b;}),
         today = new Date(Date.now()),
         startDate = new Date(sortedDates[0]),
-        dateAddedCount = {dates: [], values: []}, totalCount = 0, currentTimestamp, dayCount, dateString, j;
+        dateAddedCount = {}, totalCount = 0, currentTimestamp, dayCount, dateString, j;
 
     for (d = startDate; d <= today; d.setDate(d.getDate() + 1)) {
       currentTimestamp = d.getTime();
@@ -324,10 +333,9 @@ var Stats = {
       // only add date to array if movies were added that day
       if (dayCount > 0) {
         totalCount += dayCount;
+
         dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-        dateAddedCount.dates.push(dateString);
-        dateAddedCount.values.push(totalCount);
-        // dateAddedCount[dateString] = totalCount;
+        dateAddedCount[dateString] = totalCount;
       }
     }
 
@@ -350,8 +358,8 @@ var Stats = {
 
     // format movie resolutions data
     for (resolution in resolutionCount) {
-      if (resolutionMappings[resolution]) {
-        resolutionCount[resolutionMappings[resolution]] = resolutionCount[resolution];
+      if (Stats.resolutionMappings[resolution]) {
+        resolutionCount[Stats.resolutionMappings[resolution]] = resolutionCount[resolution];
         delete resolutionCount[resolution];
       }
     }
@@ -362,12 +370,150 @@ var Stats = {
       resolutionCount: resolutionCount,
       yearCount: yearCount,
       genreCount: genreCount,
+      genres: Stats.genres.movies,
       dateAddedCount: dateAddedCount,
       viewCount: viewCount
     };
   },
 
-  generate: function(uri, plexToken, callback) {
+  generateShowStats: function(shows, episodes, genreCount) {
+    var contentRatingCount = {},
+        showRatingCount = {},
+        resolutionCount = {},
+        yearCount = {},
+        episodesDatesAdded = [],
+        resolution;
+
+    for (var i = 0; i < shows.length; i++) {
+
+      // content rating count
+      var contentRating = shows[i].contentRating;
+      if (contentRatingCount[contentRating]) {
+        contentRatingCount[contentRating]++;
+      } else {
+        contentRatingCount[contentRating] = 1;
+      }
+
+      // show rating partitioning (round down -> 4.0-4.9 = 4, etc)
+      var showRating = parseInt(shows[i].rating);
+      if (showRatingCount[showRating]) {
+        showRatingCount[showRating]++;
+      } else {
+        showRatingCount[showRating] = 1;
+      }
+
+      // years count
+      var year = parseInt(shows[i].year);
+      if (yearCount[year]) {
+        yearCount[year]++;
+      } else {
+        yearCount[year] = 1;
+      }
+    }
+
+    // iterate over all episodes
+    for (i = 0; i < episodes.length; i++) {
+
+      // resolution count
+      resolution = episodes[i].videoResolution;
+      if (resolutionCount[resolution]) {
+        resolutionCount[resolution]++;
+      } else {
+        resolutionCount[resolution] = 1;
+      }
+
+      // episodes added over time (set date/time to beginning of the day)
+      var addedAt = new Date(parseInt(episodes[i].addedAt) * 1000).setHours(0, 0, 0, 0);
+      episodesDatesAdded.push(addedAt);
+    }
+
+
+    // cleanup, remove invalid data
+    if (contentRatingCount[null]) {
+      contentRatingCount.Unknown = contentRatingCount[null];
+      delete contentRatingCount[null];
+    }
+    if (resolutionCount[null]) {
+      resolutionCount.Unknown = resolutionCount[null];
+      delete resolutionCount[null];
+    }
+    delete yearCount[NaN];
+
+    // add missing years
+    var sortedYears = Object.keys(yearCount).sort();
+    for (i = sortedYears[0]; i < sortedYears[sortedYears.length -1]; i++) {
+      if (!yearCount[i]) {
+        yearCount[i] = 0;
+      }
+    }
+
+    // collate episodes added over time data
+    var sortedDates = episodesDatesAdded.sort(function(a, b) { return a - b;}),
+        today = new Date(Date.now()),
+        startDate = new Date(sortedDates[0]),
+        episodesDateAddedCount = {},
+        totalCount = 0;
+
+    // iterate over dates from first episode added date added to today
+    for (var d = startDate; d <= today; d.setDate(d.getDate() + 1)) {
+      var currentTimestamp = d.getTime();
+      var dayCount = 0;
+
+      for (i = 0; i < sortedDates.length; i++) {
+        if (sortedDates[i] === currentTimestamp) {
+          dayCount++;
+        }
+      }
+
+      // only add date to array if shows were added that day
+      if (dayCount > 0) {
+        totalCount += dayCount;
+
+        var dateString = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+        episodesDateAddedCount[dateString] = totalCount;
+      }
+    }
+
+    // format show ratings data
+    for (var rating in showRatingCount) {
+      if (isNaN(rating)) {
+        showRatingCount['No Rating'] = showRatingCount[NaN];
+      } else {
+        var formattedRating = rating + '.0 - ' + rating + '.9';
+        showRatingCount[formattedRating] = showRatingCount[rating];
+      }
+      delete showRatingCount[rating];
+    }
+
+    // group 9.0-10.0 ratings together
+    if (showRatingCount['9.0 - 9.9'] || showRatingCount['10.0 - 10.9']) {
+      showRatingCount['9.0 - 10.0'] = (showRatingCount['9.0 - 9.9'] || 0) + (showRatingCount['10.0 - 10.9'] || 0);
+      delete showRatingCount['9.0 - 9.9'];
+      delete showRatingCount['10.0 - 10.9'];
+    }
+
+    // format movie resolutions data
+    for (resolution in resolutionCount) {
+      if (Stats.resolutionMappings[resolution]) {
+        resolutionCount[Stats.resolutionMappings[resolution]] = resolutionCount[resolution];
+        delete resolutionCount[resolution];
+      }
+    }
+
+    return {
+      contentRatingCount: contentRatingCount,
+      showRatingCount: showRatingCount,
+      resolutionCount: resolutionCount,
+      yearCount: yearCount,
+      genreCount: genreCount,
+      genres: Stats.genres.shows,
+      episodesDateAddedCount: episodesDateAddedCount
+    };
+  },
+
+  generate: function(server, plexToken, callback) {
+
+    Stats.machineIdentifier = server.machine_identifier;
 
     jQuery('.alert.alert-status .status').text('Updating Plexius Stats...');
     jQuery('.alert.alert-status').removeClass('transition-out');
@@ -375,7 +521,7 @@ var Stats = {
 
     var taskCount = 0;
 
-    Stats.getSections(uri, plexToken, function(sectionsXml) {
+    Stats.getSections(server.uri, plexToken, function(sectionsXml) {
       if (!sectionsXml) {
         callback(false);
         return;
@@ -398,17 +544,18 @@ var Stats = {
         taskCount++;
         Stats.sectionMovieGenresCount[sectionKey] = {};
 
-        Stats.getAllMovies(uri, plexToken, sectionKey, function(movies) {
+        Stats.getAllMovies(server.uri, plexToken, sectionKey, function(movies) {
           debug('movies', movies);
           Stats.movies = Stats.movies.concat(movies);
           Stats.sectionMovies[sectionKey] = movies;
 
-          Stats.getSectionGenres(uri, plexToken, sectionKey, function(genres) {
+          Stats.getSectionGenres(server.uri, plexToken, sectionKey, function(genres) {
+            Stats.genres.movies = genres;
             debug('movie genres', genres);
             taskCount += Object.keys(genres).length;
 
             for (var genreKey in genres) {
-              Stats.getMoviesByGenre(uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreMovies);
+              Stats.getMoviesByGenre(server.uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreMovies);
             }
             taskCompleted();
           });
@@ -420,17 +567,18 @@ var Stats = {
         Stats.sectionShowGenresCount[sectionKey] = {};
         Stats.sectionEpisodes[sectionKey] = [];
 
-        Stats.getAllShows(uri, plexToken, sectionKey, function(shows) {
+        Stats.getAllShows(server.uri, plexToken, sectionKey, function(shows) {
           debug('shows', shows);
           Stats.shows = Stats.shows.concat(shows);
           Stats.sectionShows[sectionKey] = shows;
 
-          Stats.getSectionGenres(uri, plexToken, sectionKey, function(genres) {
+          Stats.getSectionGenres(server.uri, plexToken, sectionKey, function(genres) {
+            Stats.genres.shows = genres;
             debug('shows genres', genres);
             taskCount += Object.keys(genres).length;
 
             for (var genreKey in  genres) {
-              Stats.getShowsByGenre(uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreShows);
+              Stats.getShowsByGenre(server.uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreShows);
             }
             taskCompleted();
           });
@@ -438,7 +586,7 @@ var Stats = {
 
         // get all tv show episodes for section
         taskCount++;
-        Stats.getAllEpisodes(uri, plexToken, sectionKey, function(episodes) {
+        Stats.getAllEpisodes(server.uri, plexToken, sectionKey, function(episodes) {
           debug('episodes', episodes);
           Stats.episodes = Stats.episodes.concat(episodes);
           Stats.sectionEpisodes[sectionKey] = Stats.sectionEpisodes[sectionKey].concat(episodes);
@@ -450,25 +598,25 @@ var Stats = {
         taskCount++;
         Stats.sectionAlbumGenresCount[sectionKey] = {};
 
-        Stats.getAllSongs(uri, plexToken, sectionKey, function(songs) {
+        Stats.getAllSongs(server.uri, plexToken, sectionKey, function(songs) {
           debug('songs', songs);
           Stats.songs = Stats.songs.concat(songs);
           Stats.sectionSongs[sectionKey] = songs;
 
-          Stats.getSectionGenres(uri, plexToken, sectionKey, function(genres) {
+          Stats.getSectionGenres(server.uri, plexToken, sectionKey, function(genres) {
             debug('music genres', genres);
 
             taskCount += Object.keys(genres).length;
 
             for (var genreKey in genres) {
-              Stats.getAlbumsByGenre(uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreAlbums);
+              Stats.getAlbumsByGenre(server.uri, plexToken, sectionKey, genreKey, genres[genreKey], processGenreAlbums);
             }
             taskCompleted();
           });
         });
 
         taskCount++;
-        Stats.getAllAlbums(uri, plexToken, sectionKey, function(albums) {
+        Stats.getAllAlbums(server.uri, plexToken, sectionKey, function(albums) {
           debug('albums', albums);
           Stats.albums = Stats.albums.concat(albums);
           Stats.sectionAlbums[sectionKey] = albums;
@@ -530,14 +678,18 @@ var Stats = {
 
     // TODO
     function taskCompleted() {
+      var stats = {};
+
       debug('Data task finished', taskCount + ' remaining');
       taskCount--;
 
       if (taskCount === 0) {
         debug('All data tasks finished');
+        var getUrl = window.location;
+        var baseUrl = getUrl .protocol + '//' + getUrl.host + '/' + getUrl.pathname.split('/')[1];
 
         var movieStats = Stats.generateMovieStats(Stats.movies, Stats.movieGenresCount);
-        // var showStats = generateShowStats(Stats.shows, Stats.episodes, Stats.showGenresCount);
+        var showStats = Stats.generateShowStats(Stats.shows, Stats.episodes, Stats.showGenresCount);
         // var musicStats = generateMusicStats(Stats.songs, Stats.albums, Stats.albumGenresCount);
 
 
@@ -546,8 +698,13 @@ var Stats = {
         //     var sectionMovieStats = generateMovieStats(sectionMovies[sectionKey], Stats.sectionMovieGenresCount[sectionKey]);
         //     perSectionMovieStats[sectionKey] = sectionMovieStats;
         // }
-        var stats = {
-          movie: movieStats
+
+        stats = {
+          baseUrl: baseUrl,
+          sectionKeys: Stats.sectionKeys, // TODO Move this to storage and update it everytime the plugin is loaded, not once per day
+          machineIdentifier: Stats.machineIdentifier, // same
+          movie: movieStats,
+          show: showStats
         };
 
         // callback(movieStats, perSectionMovieStats);
@@ -557,8 +714,6 @@ var Stats = {
         // localStorage.setItem('PlexiusStatsUpdated', Date.now());
         jQuery('.alert.alert-status').addClass('transition-out');
         insertStatsButton();
-
-        debug('movieStats', movieStats);
       }
     }
   }

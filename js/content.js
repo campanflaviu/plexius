@@ -19,7 +19,7 @@ var checkPage = function() {
 
         // show the stats button in the navigation bar if they were previously gathered
         local_storage_get('PlexiusStats', function(result) {
-            if (result.movie) {
+            if (result && result.movie) {
                 insertStatsButton();
             }
         });
@@ -110,7 +110,7 @@ function checkElement() {
             // update stats if they are older than 1 day
             local_storage_get('PlexiusStatsUpdated', function(result) {
                 if (!result || Date.now() - result > 1000 * 60 * 60 * 24) {
-                    Stats.generate(global_server_addresses[machine_identifier].uri, localStorage.myPlexAccessToken, function(stats) {
+                    Stats.generate(global_server_addresses[machine_identifier], localStorage.myPlexAccessToken, function(stats) {
                     });
                 }
             });

@@ -49,14 +49,12 @@
     width: 50px;
     color: rgba(255, 255, 255, 0.7);
     border: 0;
+    flex-shrink: 0;
+    padding: 0;
 }
 
 .plexius-trailer-button:focus {
     outline:none;
-}
-
-.plex-icon-trailer:before {
-    content: "\EA55";
 }
 
 /* missing episodes */

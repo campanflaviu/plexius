@@ -91,7 +91,7 @@ var traktApi = {
     },
 
     injectYoutubeTrailer: function(trailerApi) {
-        jQuery(headerToolbarContainerEl).prepend('<a href="' + trailerApi + '" target="_blank" aria-label="Trailer" title="Trailer"><button class="plexius-trailer-button Link-link-2wZEE Link-default-1sSkX tether-target tether-element-attached-top tether-element-attached-center tether-target-attached-bottom tether-target-attached-center" style="text-align: center" type="button"><i class="plex-icon-trailer" aria-hidden="true"></i></button></a>');
+        jQuery(headerToolbarContainerEl).prepend('<button onclick="window.open(\'' + trailerApi + '\', \'_blank\');" aria-label="Trailer" title="Trailer" class="plexius-trailer-button" style="text-align: center" type="button"><i class="glyphicon film" aria-hidden="true"></i></button>');
     },
 
     processResource: function(movieDetails) {

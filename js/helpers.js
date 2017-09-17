@@ -392,7 +392,7 @@ function getRequestsUrl() {
     if (localStorage.myPlexAccessToken) {
         return 'https://plex.tv/pms';
     } else {
-        var url_matches = page_url.match(/^?\:\/\/(.+):(\d+)\/web\/.+/);
+        var url_matches = document.URL.match(/^?\:\/\/(.+):(\d+)\/web\/.+/);
         return window.location.protocol + '//' + url_matches[1] + ':' + url_matches[2];
     }
 }
