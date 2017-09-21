@@ -3,7 +3,7 @@
 
     "name": "Plexius",
     "description": "Enhancements to the Plex web interface",
-    "version": "1.7.0",
+    "version": "1.7.1",
 
     "browser_action": {
         "default_icon": "assets/icon.png"
@@ -44,5 +44,5 @@
         "128": "assets/icon128.png"
     },
 
-    "web_accessible_resources": ["options.html", "stats.html"]
+    "web_accessible_resources": ["assets/*", "options.html", "stats.html"]
 }
